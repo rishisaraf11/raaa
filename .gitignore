@@ -1,0 +1,13 @@
+.settings/*
+/bin
+/build
+*/target
+/target
+.classpath
+.project
+.idea
+.settings
+*.iml
+*/tmp
+*.espressostorage
+*.git.properties
