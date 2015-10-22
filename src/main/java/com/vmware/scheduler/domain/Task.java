@@ -4,20 +4,32 @@
 
 package com.vmware.scheduler.domain;
 
+import java.util.Map;
 import org.springframework.data.annotation.Id;
 
 public class Task {
 
     @Id
-    public String id;
+    String id;
 
-    public TaskType taskType;
+    TaskType taskType;
 
-    public String name;
+    String name;
 
-    public Task(TaskType taskType, String name) {
+    Map<String,String> payload;
+
+    public Task(TaskType taskType, String name, Object payload) {
         this.taskType = taskType;
         this.name = name;
+        this.payload = (Map) payload;
+    }
+
+    public Map<String, String> getPayload() {
+        return payload;
+    }
+
+    public void setPayload(Map<String, String> payload) {
+        this.payload = payload;
     }
 
     public String getId() {
@@ -43,4 +55,5 @@ public class Task {
     public void setName(String name) {
         this.name = name;
     }
+
 }

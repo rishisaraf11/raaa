@@ -4,19 +4,19 @@
 
 package com.vmware.scheduler.controller;
 
+import com.vmware.scheduler.domain.Scheduler;
+import com.vmware.scheduler.domain.Task;
+import com.vmware.scheduler.domain.TaskType;
+import com.vmware.scheduler.repo.SchedulerRepository;
+import com.vmware.scheduler.repo.TaskRepository;
+import com.vmware.scheduler.service.Rest;
 import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.vmware.scheduler.domain.Task;
-import com.vmware.scheduler.domain.TaskType;
-import com.vmware.scheduler.repo.TaskRepository;
 
 @RestController
 @RequestMapping("/api/task")
@@ -25,10 +25,13 @@ public class TaskController {
     @Autowired
     TaskRepository taskRepository;
 
+    @Autowired
+    SchedulerRepository schedulerRepository;
+
     @RequestMapping(method = RequestMethod.POST)
-    public Task createTask(@RequestBody Map<String, String> taskDetails) {
-        Task task = new Task(TaskType.valueOf(taskDetails.get("taskType")),
-                taskDetails.get("name"));
+    public Task createTask(@RequestBody Map<String, Object> taskDetails) {
+        Task task = new Task(TaskType.valueOf(taskDetails.get("taskType").toString()),
+                taskDetails.get("name").toString(), taskDetails.get("payload"));
         Task persisted = taskRepository.save(task);
         return persisted;
     }
@@ -36,5 +39,18 @@ public class TaskController {
     @RequestMapping(method = RequestMethod.GET, value = "/{taskId}")
     public Task getTask(@PathVariable String taskId) {
         return taskRepository.findOne(taskId);
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/{taskId}/schedule")
+    public Scheduler scheduleTask(@PathVariable String taskId, @RequestBody Map<String, String> scheduleDetails) {
+        Scheduler scheduler = new Scheduler(taskId,scheduleDetails.get("timeZone"),scheduleDetails.get("timeStamp"));
+        Scheduler persisted = schedulerRepository.save(scheduler);
+        System.out.println(Rest.execute(taskRepository.findOne(taskId).getPayload()));
+        return persisted;
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/{taskId}/schedule/{scheduleId}")
+    public Scheduler getScheduledTask(@PathVariable String taskId, @PathVariable String scheduleId) {
+        return schedulerRepository.findOne(scheduleId);
     }
 }
