@@ -9,11 +9,13 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.springframework.stereotype.Component;
 
 /**
  * Created by djoshi on 10/22/2015.
  */
-public class Rest {
+@Component
+public class RestService {
     enum RequestMethod {
         GET, POST;
     }
@@ -104,7 +106,7 @@ public class Rest {
         return result.toString();
     }
 
-    public static String execute(Map<String, String> payload) {
+    public String execute(Map<String, String> payload) {
         //Gson g = new Gson();
         //RestPayload restPayload = g.fromJson(payload.toString(), RestPayload.class);
         switch (payload.get("method").toLowerCase()) {

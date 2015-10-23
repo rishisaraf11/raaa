@@ -9,9 +9,12 @@ import com.vmware.scheduler.domain.Task;
 import com.vmware.scheduler.domain.TaskType;
 import com.vmware.scheduler.repo.SchedulerRepository;
 import com.vmware.scheduler.repo.TaskRepository;
-import com.vmware.scheduler.service.Rest;
+import com.vmware.scheduler.service.QueryScheduler;
+import com.vmware.scheduler.service.RestService;
+
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,11 +31,16 @@ public class TaskController {
     @Autowired
     SchedulerRepository schedulerRepository;
 
+    @Autowired
+    QueryScheduler queryScheduler;
+
     @RequestMapping(method = RequestMethod.POST)
     public Task createTask(@RequestBody Map<String, Object> taskDetails) {
         Task task = new Task(TaskType.valueOf(taskDetails.get("taskType").toString()),
                 taskDetails.get("name").toString(), taskDetails.get("payload"));
         Task persisted = taskRepository.save(task);
+        //if task need to be executed in next 10 mins;
+//        queryScheduler.getTaskQueue().add(persisted);
         return persisted;
     }
 
@@ -45,7 +53,7 @@ public class TaskController {
     public Scheduler scheduleTask(@PathVariable String taskId, @RequestBody Map<String, String> scheduleDetails) {
         Scheduler scheduler = new Scheduler(taskId,scheduleDetails.get("timeZone"),scheduleDetails.get("timeStamp"));
         Scheduler persisted = schedulerRepository.save(scheduler);
-        System.out.println(Rest.execute(taskRepository.findOne(taskId).getPayload()));
+//        System.out.println(RestService.execute(taskRepository.findOne(taskId).getPayload()));
         return persisted;
     }
 
