@@ -6,9 +6,13 @@ package com.vmware.scheduler;
 
 import java.util.Calendar;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
+@EnableAutoConfiguration
+@EnableScheduling
 public class Application {
 
     private int getMinutesUntilTarget(int targetHour, int targetMinute) {
@@ -22,8 +26,5 @@ public class Application {
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
-
-        //ScheduledExecutorService service = Executors.newScheduledThreadPool(1);
-        //service.scheduleAtFixedRate(daemonThread, waiting, 24*60, TimeUnit.MINUTES);
     }
 }

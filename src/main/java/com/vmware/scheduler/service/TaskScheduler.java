@@ -22,7 +22,7 @@ public class TaskScheduler {
     @Autowired
     RestService restService;
 
-    @Scheduled(fixedDelay = 1000)
+    @Scheduled(fixedDelay = 60000)
     public void doSchedule() throws InterruptedException {
         //fire query get latest record going to run in next 10 mins
 
