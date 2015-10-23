@@ -1,5 +1,6 @@
 package com.vmware.scheduler.domain;
 
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.data.annotation.Id;
 
 /**
@@ -10,6 +11,7 @@ public class Scheduler {
     @Id
     public String id;
 
+    @NotEmpty
     public String taskId;
 
     public String timeZone;

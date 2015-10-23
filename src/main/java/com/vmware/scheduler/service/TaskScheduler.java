@@ -4,32 +4,34 @@
 
 package com.vmware.scheduler.service;
 
+import com.vmware.scheduler.domain.Scheduler;
+import com.vmware.scheduler.domain.Task;
+import com.vmware.scheduler.repo.TaskRepository;
 import java.util.PriorityQueue;
-import java.util.TreeSet;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
-import com.vmware.scheduler.domain.Task;
 
 @Component
 public class TaskScheduler {
 
     @Autowired
+    TaskRepository taskRepository;
+    @Autowired
     QueryScheduler queryScheduler;
     @Autowired
     RestService restService;
 
-    @Scheduled(fixedDelay = 10000)
+    @Scheduled(fixedDelay = 1000)
     public void doSchedule() throws InterruptedException {
         //fire query get latest record going to run in next 10 mins
-        PriorityQueue<Task> taskSet = queryScheduler.getTaskQueue();
-        if (taskSet.isEmpty()) {
-            // check if it can be executed
-            Task remove = taskSet.remove();
-            restService.execute(null);
 
+        PriorityQueue<Scheduler> taskSet = queryScheduler.getTaskQueue();
+        if (!taskSet.isEmpty()) {
+            // check if it can be executed
+            Scheduler remove = taskSet.remove();
+            Task task = taskRepository.findOne(remove.getTaskId());
+            restService.execute(task.getPayload());
         }
     }
 }

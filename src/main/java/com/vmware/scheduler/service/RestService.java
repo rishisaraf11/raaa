@@ -109,6 +109,7 @@ public class RestService {
     public String execute(Map<String, String> payload) {
         //Gson g = new Gson();
         //RestPayload restPayload = g.fromJson(payload.toString(), RestPayload.class);
+        System.out.println("Rest Service Executed.");
         switch (payload.get("method").toLowerCase()) {
             case "get":
                 return handleGet();

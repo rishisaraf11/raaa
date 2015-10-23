@@ -10,11 +10,9 @@ import com.vmware.scheduler.domain.TaskType;
 import com.vmware.scheduler.repo.SchedulerRepository;
 import com.vmware.scheduler.repo.TaskRepository;
 import com.vmware.scheduler.service.QueryScheduler;
-import com.vmware.scheduler.service.RestService;
-
+import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,6 +42,11 @@ public class TaskController {
         return persisted;
     }
 
+    @RequestMapping(method = RequestMethod.GET)
+    public List<Task> getAllTasks() {
+        return taskRepository.findAll();
+    }
+
     @RequestMapping(method = RequestMethod.GET, value = "/{taskId}")
     public Task getTask(@PathVariable String taskId) {
         return taskRepository.findOne(taskId);
@@ -60,5 +63,16 @@ public class TaskController {
     @RequestMapping(method = RequestMethod.GET, value = "/{taskId}/schedule/{scheduleId}")
     public Scheduler getScheduledTask(@PathVariable String taskId, @PathVariable String scheduleId) {
         return schedulerRepository.findOne(scheduleId);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/schedule")
+    public List<Scheduler> getAllScheduledTask() {
+        return schedulerRepository.findAll();
+    }
+
+
+    @RequestMapping(method = RequestMethod.GET, value = "/{taskId}/schedule")
+    public List<Scheduler> getAllScheduledEventOfTask(@PathVariable String taskId) {
+        return schedulerRepository.findByTaskId(taskId);
     }
 }
