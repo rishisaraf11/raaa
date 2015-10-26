@@ -30,7 +30,7 @@ public class QueryScheduler {
     @Autowired
     SchedulerRepository schedulerRepository;
 
-    @Scheduled(fixedDelay = 600000)
+    @Scheduled(fixedDelay = 50000)
     public void doSchedule() throws InterruptedException {
        //fire query get latest record going to run in next 10 mins
         Calendar calendar = Calendar.getInstance();

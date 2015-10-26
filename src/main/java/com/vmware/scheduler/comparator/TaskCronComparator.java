@@ -18,10 +18,6 @@ public class TaskCronComparator implements Comparator<Scheduler> {
 
     @Override
     public int compare(Scheduler o1, Scheduler o2) {
-        int result = o1.getTimeStamp().compareTo(o2.getTimeStamp());
-        if(result<0)
-            return 1;
-        else
-            return 0;
+        return o1.getTimeStamp().compareTo(o2.getTimeStamp());
     }
 }
