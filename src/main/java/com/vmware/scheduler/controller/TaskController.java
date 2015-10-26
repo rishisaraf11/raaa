@@ -4,12 +4,16 @@
 
 package com.vmware.scheduler.controller;
 
+import com.vmware.scheduler.domain.ExecutionStatus;
 import com.vmware.scheduler.domain.Scheduler;
 import com.vmware.scheduler.domain.Task;
+import com.vmware.scheduler.domain.TaskExecution;
 import com.vmware.scheduler.domain.TaskType;
 import com.vmware.scheduler.repo.SchedulerRepository;
+import com.vmware.scheduler.repo.TaskExecutionRepository;
 import com.vmware.scheduler.repo.TaskRepository;
 import com.vmware.scheduler.service.QueryScheduler;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +34,9 @@ public class TaskController {
     SchedulerRepository schedulerRepository;
 
     @Autowired
+    TaskExecutionRepository taskExecutionRepository;
+
+    @Autowired
     QueryScheduler queryScheduler;
 
     @RequestMapping(method = RequestMethod.POST)
@@ -37,6 +44,16 @@ public class TaskController {
         Task task = new Task(TaskType.valueOf(taskDetails.get("taskType").toString()),
                 taskDetails.get("name").toString(), taskDetails.get("payload"));
         Task persisted = taskRepository.save(task);
+        if(taskDetails.get("time")==null || taskDetails.get("time").toString().isEmpty() ){
+            //return new Exception();
+        }else {
+            Scheduler scheduler = schedulerRepository.save(new Scheduler(persisted.getId(),"India", taskDetails.get("time").toString()));
+            TaskExecution execution = taskExecutionRepository.save(new TaskExecution(persisted.getId(), ExecutionStatus.NOT_SCHEDULED));
+            persisted.setTaskExecutions(new ArrayList<TaskExecution>() {{
+                add(execution);
+            }});
+            persisted.setScheduler(scheduler);
+        }
         //if task need to be executed in next 10 mins;
 //        queryScheduler.getTaskQueue().add(persisted);
         return persisted;

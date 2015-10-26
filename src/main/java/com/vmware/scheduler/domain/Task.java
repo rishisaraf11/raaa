@@ -4,6 +4,7 @@
 
 package com.vmware.scheduler.domain;
 
+import java.util.List;
 import java.util.Map;
 import org.springframework.data.annotation.Id;
 
@@ -17,6 +18,10 @@ public class Task {
     String name;
 
     Map<String,String> payload;
+
+    Scheduler scheduler;
+
+    List<TaskExecution> taskExecutions;
 
     public Task(TaskType taskType, String name, Object payload) {
         this.taskType = taskType;
@@ -54,6 +59,22 @@ public class Task {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Scheduler getScheduler() {
+        return scheduler;
+    }
+
+    public void setScheduler(Scheduler scheduler) {
+        this.scheduler = scheduler;
+    }
+
+    public List<TaskExecution> getTaskExecutions() {
+        return taskExecutions;
+    }
+
+    public void setTaskExecutions(List<TaskExecution> taskExecutions) {
+        this.taskExecutions = taskExecutions;
     }
 
 }
