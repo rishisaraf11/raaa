@@ -5,7 +5,7 @@
 package com.vmware.scheduler.domain;
 
 public enum TaskType {
-    REST("rest") , COMMAND("command");
+    REST("Rest") , COMMAND("command");
 
     public String logicalName;
 

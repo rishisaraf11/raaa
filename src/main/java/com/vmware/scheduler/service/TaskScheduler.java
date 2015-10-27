@@ -37,9 +37,10 @@ public class TaskScheduler {
         @Override
         public void run() {
             System.out.println(task.getName()+" Start. Time = "+new Date());
+
             switch (task.getTaskType()) {
                 case REST:
-                    restService.execute(task.getPayload());
+                    //restService.execute(task.getPayload());
                     break;
                 case COMMAND:
                     //command service to execute
@@ -51,7 +52,7 @@ public class TaskScheduler {
 
         private void processCommand() {
             try {
-                restService.execute(task.getPayload());
+                //restService.execute(task.getPayload());
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();

@@ -18,14 +18,13 @@ public class Scheduler {
 
     public String timeStamp;
 
-    public Scheduler(){
+    ExecutionStatus executionStatus;
 
-    }
-
-    public Scheduler(String taskId, String timeZone, String timeStamp){
+    public Scheduler(String taskId, String timeZone, String timeStamp, ExecutionStatus executionStatus){
         this.taskId = taskId;
         this.timeZone = timeZone;
         this.timeStamp = timeStamp;
+        this.executionStatus=executionStatus;
     }
 
     public String getId() {
@@ -60,5 +59,12 @@ public class Scheduler {
         this.timeStamp = timeStamp;
     }
 
+    public ExecutionStatus getExecutionStatus() {
+        return executionStatus;
+    }
+
+    public void setExecutionStatus(ExecutionStatus executionStatus) {
+        this.executionStatus = executionStatus;
+    }
 
 }
