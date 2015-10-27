@@ -4,6 +4,8 @@
 
 package com.vmware.scheduler.domain;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.springframework.data.annotation.Id;
@@ -33,15 +35,15 @@ public class Task {
 
     String expression;
 
-    List<Map<String,String>> headers;
+    Map<String,String> headers;
 
-    List<Map<String,String>> params;
+    Map<String,String> params;
 
     String url;
 
     String payload;
 
-    String date;
+    LocalDateTime date;
 
     // Scheduler scheduler;
 
@@ -49,10 +51,9 @@ public class Task {
 
     }
 
-    public Task(TaskType type, String name, String expressionType) {
+    public Task(TaskType type, String name) {
         this.taskType = type;
         this.name = name;
-        this.expressionType = expressionType;
     }
 
     public String getId() {
@@ -95,22 +96,6 @@ public class Task {
         this.expression = expression;
     }
 
-    public List<Map<String, String>> getHeaders() {
-        return headers;
-    }
-
-    public void setHeaders(List<Map<String, String>> headers) {
-        this.headers = headers;
-    }
-
-    public List<Map<String, String>> getParams() {
-        return params;
-    }
-
-    public void setParams(List<Map<String, String>> params) {
-        this.params = params;
-    }
-
     public String getUrl() {
         return url;
     }
@@ -127,12 +112,27 @@ public class Task {
         this.payload = payload;
     }
 
-    public String getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(LocalDateTime date) {
         this.date = date;
     }
 
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
+    public void setHeaders(Map<String, String> headers) {
+        this.headers = headers;
+    }
+
+    public Map<String, String> getParams() {
+        return params;
+    }
+
+    public void setParams(Map<String, String> params) {
+        this.params = params;
+    }
 }

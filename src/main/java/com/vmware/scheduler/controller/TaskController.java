@@ -11,6 +11,10 @@ import com.vmware.scheduler.domain.TaskType;
 import com.vmware.scheduler.repo.SchedulerRepository;
 import com.vmware.scheduler.repo.TaskRepository;
 import com.vmware.scheduler.service.QueryScheduler;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,15 +40,18 @@ public class TaskController {
 
     @RequestMapping(method = RequestMethod.POST)
     public Task createTask(@RequestBody Map<String, Object> taskDetails) {
-        Task task = new Task(TaskType.valueOf(taskDetails.get("type").toString()), taskDetails.get("name").toString(), taskDetails.get("expressionType").toString());
+        Task task = new Task(TaskType.valueOf(taskDetails.get("type").toString()), taskDetails.get("name").toString());
+        task.setExpressionType(taskDetails.get("expressionType").toString());
         task.setMethod(taskDetails.get("method").toString());
-        task.setExpression(taskDetails.get("expression").toString());
-        task.setHeaders((List)taskDetails.get("headers"));
-        task.setParams((List)taskDetails.get("params"));
+        if ("cron".equals(taskDetails.get("expressionType").toString())) {
+            task.setExpression(taskDetails.get("expression").toString());
+        } else {
+            task.setDate(LocalDateTime.parse(taskDetails.get("date").toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")));
+        }
+        task.setHeaders((Map)taskDetails.get("headers"));
+        task.setParams((Map)taskDetails.get("params"));
         task.setUrl(taskDetails.get("url").toString());
         task.setPayload(taskDetails.get("payload").toString());
-        task.setDate(taskDetails.get("date").toString());
-
         Task persisted = taskRepository.save(task);
         /*if(taskDetails.get("time")==null || taskDetails.get("time").toString().isEmpty() ){
             //return new Exception();
