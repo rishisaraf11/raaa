@@ -12,8 +12,8 @@ import com.vmware.scheduler.domain.TaskType;
 import com.vmware.scheduler.repo.SchedulerRepository;
 import com.vmware.scheduler.repo.TaskRepository;
 import com.vmware.scheduler.service.QueryScheduler;
-
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -49,23 +49,24 @@ public class TaskController {
             runInfo.put("method",taskDetails.get("method").toString());
             runInfo.put("url",taskDetails.get("url").toString());
             runInfo.put("payload", taskDetails.get("payload"));
-//            runInfo.put("headers",(Map) taskDetails.get("headers"));
-//            runInfo.put("params",(Map) taskDetails.get("params"));
+            runInfo.put("headers", taskDetails.get("headers"));
+            runInfo.put("params", taskDetails.get("params"));
         }
 
         if ("cron".equals(taskDetails.get("expressionType").toString())) {
             task.setExpression(taskDetails.get("expression").toString());
         } else {
-            //task.setDate(LocalDateTime.parse(taskDetails.get("date").toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")));
-            task.setDate(taskDetails.get("date").toString());
+            LocalDateTime dateTime = LocalDateTime.parse(taskDetails.get("date").toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
+            task.setDate(dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
         }
         Task persisted = taskRepository.save(task);
-        /*if(taskDetails.get("time")==null || taskDetails.get("time").toString().isEmpty() ){
+        if(taskDetails.get("date")==null || taskDetails.get("date").toString().isEmpty() ){
             //return new Exception();
         }else {
-            Scheduler scheduler = schedulerRepository.save(new Scheduler(persisted.getId(),"India", taskDetails.get("time").toString(),ExecutionStatus.NOT_SCHEDULED));
-            persisted.setScheduler(scheduler);
-        }*/
+            LocalDateTime dateTime = LocalDateTime.parse(taskDetails.get("date").toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
+            Scheduler scheduler = new Scheduler(persisted.getId(),"India", dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),ExecutionStatus.NOT_SCHEDULED);
+            schedulerRepository.save(scheduler);
+        }
         //if task need to be executed in next 10 mins;
 //        queryScheduler.getTaskQueue().add(persisted);
         return persisted;
@@ -76,8 +77,9 @@ public class TaskController {
         List<Task> taskList = taskRepository.findAll(new Sort(Sort.Direction.ASC, "date"));
         List<TaskRoot> responseList = new ArrayList();
         taskList.forEach( task -> {
-            responseList.add(new TaskRoot(task.getId(), task.getName(), task.getTaskType(), ExecutionStatus.EXECUTED,
-                    LocalDateTime.now().toString(), task.isActive(), 100, Arrays.asList(40l, 50l)));
+            List<Scheduler> schedulers = schedulerRepository.findByTaskId(task.getId(),new Sort(Sort.Direction.DESC,"date"));
+            responseList.add(new TaskRoot(task.getId(),task.getName(), task.getTaskType(),schedulers.get(0).getExecutionStatus(),
+                    schedulers.get(0).getTimeStamp(), task.isActive(), 100, Arrays.asList(40l, 50l)));
         });
         return responseList;
     }

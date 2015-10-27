@@ -8,7 +8,8 @@ import com.vmware.scheduler.comparator.TaskCronComparator;
 import com.vmware.scheduler.domain.Scheduler;
 import com.vmware.scheduler.repo.SchedulerRepository;
 import com.vmware.scheduler.repo.TaskRepository;
-import java.util.Calendar;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.PriorityQueue;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ public class QueryScheduler {
     }*/
 
     //need to change to priorityBlockingQueue
-    PriorityQueue<Scheduler> taskQueue = new PriorityQueue<>(new TaskCronComparator());
+    PriorityQueue<Scheduler> taskQueue = new PriorityQueue<Scheduler>(new TaskCronComparator());
     @Autowired
     TaskRepository taskRepository;
     @Autowired
@@ -33,11 +34,18 @@ public class QueryScheduler {
     @Scheduled(fixedDelay = 50000)
     public void doSchedule() throws InterruptedException {
        //fire query get latest record going to run in next 10 mins
-        Calendar calendar = Calendar.getInstance();
+        LocalDateTime  dateTime = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime dateTime2 = LocalDateTime.of(dateTime.getYear(), dateTime.getMonth(), dateTime.getDayOfMonth(), dateTime.getHour(), dateTime.getMinute()+10);
+      /*  Calendar calendar = Calendar.getInstance();
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
-        String time1 = hour+":"+minute;
-        String time2 = hour+":"+(minute+10);
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int date = calendar.get(Calendar.DATE);
+      */
+        String time1 = dateTime.format(formatter);
+        String time2 = dateTime2.format(formatter);
 
         List<Scheduler> futureTasks = schedulerRepository.getUpcomingTask(time1,time2);
         taskQueue.clear();

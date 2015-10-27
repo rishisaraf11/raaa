@@ -1,5 +1,6 @@
 package com.vmware.scheduler.service;
 
+import com.vmware.scheduler.domain.Task;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -106,16 +107,16 @@ public class RestService {
         return result.toString();
     }
 
-    public String execute(Map<String, String> payload) {
+    public String execute(Task task) {
         //Gson g = new Gson();
         //RestPayload restPayload = g.fromJson(payload.toString(), RestPayload.class);
         System.out.println("Rest Service Executed.");
-        switch (payload.get("method").toLowerCase()) {
+        /*switch (payload.get("method").toLowerCase()) {
             case "get":
                 return handleGet();
             case "post":
                 return handlePost();
-        }
+        }*/
         return "Error";
     }
 }

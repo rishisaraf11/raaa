@@ -40,7 +40,7 @@ public class TaskScheduler {
 
             switch (task.getTaskType()) {
                 case REST:
-                    //restService.execute(task.getRunInfo());
+                    restService.execute(task);
                     break;
                 case COMMAND:
                     //command service to execute
@@ -83,9 +83,10 @@ public class TaskScheduler {
                 Task task = taskRepository.findOne(remove.getTaskId());
 
                 String time = remove.getTimeStamp();
-                String[] HM = time.split(":");
-                int hour = Integer.parseInt(HM[0]);
-                int minute = Integer.parseInt(HM[1]);
+                String[] HM = time.split(" ");
+                String[] HM1 = HM[1].split(":");
+                int hour = Integer.parseInt(HM1[0]);
+                int minute = Integer.parseInt(HM1[1]);
                 System.out.println("Schedule Time: " + hour + ":" + minute);
                 // can be implemented for seconds too
                 int waiting = getMinutesUntilTarget(hour, minute);

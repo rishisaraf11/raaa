@@ -2,6 +2,7 @@ package com.vmware.scheduler.repo;
 
 import com.vmware.scheduler.domain.Scheduler;
 import java.util.List;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
@@ -14,4 +15,6 @@ public interface SchedulerRepository extends MongoRepository<Scheduler,String> {
     public List<Scheduler> getUpcomingTask(String gt, String lt);
 
     public List<Scheduler> findByTaskId(String taskId);
+
+    public List<Scheduler> findByTaskId(String taskId, Sort sort);
 }
