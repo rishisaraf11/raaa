@@ -9,7 +9,7 @@
     <version>0.1-SNAPSHOT</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <start-class>com.freight.truck.manager.Application</start-class>
+        <start-class>com.vmware.scheduler.Application</start-class>
         <java.version>1.8</java.version>
     </properties>
 
@@ -52,6 +52,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <executable>true</executable>
+                </configuration>
             </plugin>
         </plugins>
     </build>
