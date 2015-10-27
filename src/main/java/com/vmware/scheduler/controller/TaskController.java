@@ -11,9 +11,6 @@ import com.vmware.scheduler.domain.TaskType;
 import com.vmware.scheduler.repo.SchedulerRepository;
 import com.vmware.scheduler.repo.TaskRepository;
 import com.vmware.scheduler.service.QueryScheduler;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +50,8 @@ public class TaskController {
         if ("cron".equals(taskDetails.get("expressionType").toString())) {
             task.setExpression(taskDetails.get("expression").toString());
         } else {
-            task.setDate(LocalDateTime.parse(taskDetails.get("date").toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")));
+            //task.setDate(LocalDateTime.parse(taskDetails.get("date").toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")));
+            task.setDate(taskDetails.get("date").toString());
         }
         Task persisted = taskRepository.save(task);
         /*if(taskDetails.get("time")==null || taskDetails.get("time").toString().isEmpty() ){

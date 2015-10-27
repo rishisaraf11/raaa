@@ -4,7 +4,6 @@
 
 package com.vmware.scheduler.domain;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.data.annotation.Id;
@@ -34,7 +33,15 @@ public class Task {
 
     Map<String, Object> runInfo = new HashMap<>();
 
-    LocalDateTime date;
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    String date;
 
     // Scheduler scheduler;
 
@@ -85,13 +92,5 @@ public class Task {
 
     public void setRunInfo(Map<String, Object> runInfo) {
         this.runInfo = runInfo;
-    }
-
-    public LocalDateTime getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDateTime date) {
-        this.date = date;
     }
 }
