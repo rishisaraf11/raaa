@@ -40,7 +40,7 @@ public class TaskScheduler {
 
             switch (task.getTaskType()) {
                 case REST:
-                    restService.execute(task);
+                    restService.execute(task.getRunInfo());
                     break;
                 case COMMAND:
                     //command service to execute
