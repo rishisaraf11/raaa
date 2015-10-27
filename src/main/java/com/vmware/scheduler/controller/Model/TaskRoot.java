@@ -11,6 +11,7 @@ import com.vmware.scheduler.domain.TaskType;
 
 public class TaskRoot {
 
+    String id;
     String name;
     TaskType taskType;
     ExecutionStatus lastExecutionStatus;
@@ -19,9 +20,10 @@ public class TaskRoot {
     long totalRun;
     List<Long> runData;
 
-    public TaskRoot(String name, TaskType taskType,
+    public TaskRoot(String id, String name, TaskType taskType,
             ExecutionStatus lastExecutionStatus, String lastExecutionTime, boolean active,
             long totalRun, List<Long> runData) {
+        this.id = id;
         this.name = name;
         this.taskType = taskType;
         this.lastExecutionStatus = lastExecutionStatus;
@@ -85,5 +87,13 @@ public class TaskRoot {
 
     public void setRunData(List<Long> runData) {
         this.runData = runData;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

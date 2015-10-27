@@ -76,7 +76,7 @@ public class TaskController {
         List<Task> taskList = taskRepository.findAll(new Sort(Sort.Direction.ASC, "date"));
         List<TaskRoot> responseList = new ArrayList();
         taskList.forEach( task -> {
-            responseList.add(new TaskRoot(task.getName(), task.getTaskType(), ExecutionStatus.EXECUTED,
+            responseList.add(new TaskRoot(task.getId(), task.getName(), task.getTaskType(), ExecutionStatus.EXECUTED,
                     LocalDateTime.now().toString(), task.isActive(), 100, Arrays.asList(40l, 50l)));
         });
         return responseList;
