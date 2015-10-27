@@ -14,7 +14,6 @@ import com.vmware.scheduler.service.QueryScheduler;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,16 +41,20 @@ public class TaskController {
     public Task createTask(@RequestBody Map<String, Object> taskDetails) {
         Task task = new Task(TaskType.valueOf(taskDetails.get("type").toString()), taskDetails.get("name").toString());
         task.setExpressionType(taskDetails.get("expressionType").toString());
-        task.setMethod(taskDetails.get("method").toString());
+        Map<String, Object> runInfo = task.getRunInfo();
+        if (TaskType.REST.equals(task.getTaskType())) {
+            runInfo.put("method",taskDetails.get("method").toString());
+            runInfo.put("url",taskDetails.get("url").toString());
+            runInfo.put("payload", taskDetails.get("payload"));
+//            runInfo.put("headers",(Map) taskDetails.get("headers"));
+//            runInfo.put("params",(Map) taskDetails.get("params"));
+        }
+
         if ("cron".equals(taskDetails.get("expressionType").toString())) {
             task.setExpression(taskDetails.get("expression").toString());
         } else {
             task.setDate(LocalDateTime.parse(taskDetails.get("date").toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")));
         }
-        task.setHeaders((Map)taskDetails.get("headers"));
-        task.setParams((Map)taskDetails.get("params"));
-        task.setUrl(taskDetails.get("url").toString());
-        task.setPayload(taskDetails.get("payload").toString());
         Task persisted = taskRepository.save(task);
         /*if(taskDetails.get("time")==null || taskDetails.get("time").toString().isEmpty() ){
             //return new Exception();
@@ -78,7 +81,7 @@ public class TaskController {
     public Scheduler scheduleTask(@PathVariable String taskId, @RequestBody Map<String, String> scheduleDetails) {
         Scheduler scheduler = new Scheduler(taskId,scheduleDetails.get("timeZone"),scheduleDetails.get("timeStamp"),ExecutionStatus.SCHEDULED);
         Scheduler persisted = schedulerRepository.save(scheduler);
-//        System.out.println(RestService.execute(taskRepository.findOne(taskId).getPayload()));
+//        System.out.println(RestService.execute(taskRepository.findOne(taskId).getRunInfo()));
         return persisted;
     }
 

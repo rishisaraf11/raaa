@@ -40,7 +40,7 @@ public class TaskScheduler {
 
             switch (task.getTaskType()) {
                 case REST:
-                    //restService.execute(task.getPayload());
+                    //restService.execute(task.getRunInfo());
                     break;
                 case COMMAND:
                     //command service to execute
@@ -52,7 +52,7 @@ public class TaskScheduler {
 
         private void processCommand() {
             try {
-                //restService.execute(task.getPayload());
+                //restService.execute(task.getRunInfo());
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
