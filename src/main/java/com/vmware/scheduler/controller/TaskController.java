@@ -4,6 +4,7 @@
 
 package com.vmware.scheduler.controller;
 
+import com.vmware.scheduler.controller.Model.TaskRoot;
 import com.vmware.scheduler.domain.ExecutionStatus;
 import com.vmware.scheduler.domain.Scheduler;
 import com.vmware.scheduler.domain.Task;
@@ -11,6 +12,10 @@ import com.vmware.scheduler.domain.TaskType;
 import com.vmware.scheduler.repo.SchedulerRepository;
 import com.vmware.scheduler.repo.TaskRepository;
 import com.vmware.scheduler.service.QueryScheduler;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +43,7 @@ public class TaskController {
     public Task createTask(@RequestBody Map<String, Object> taskDetails) {
         Task task = new Task(TaskType.valueOf(taskDetails.get("type").toString()), taskDetails.get("name").toString());
         task.setExpressionType(taskDetails.get("expressionType").toString());
+        task.setActive(true);
         Map<String, Object> runInfo = task.getRunInfo();
         if (TaskType.REST.equals(task.getTaskType())) {
             runInfo.put("method",taskDetails.get("method").toString());
@@ -66,8 +72,14 @@ public class TaskController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public List<Task> getAllTasks() {
-        return taskRepository.findAll(new Sort(Sort.Direction.ASC,"date"));
+    public List<TaskRoot> getAllTasks() {
+        List<Task> taskList = taskRepository.findAll(new Sort(Sort.Direction.ASC, "date"));
+        List<TaskRoot> responseList = new ArrayList();
+        taskList.forEach( task -> {
+            responseList.add(new TaskRoot(task.getName(), task.getTaskType(), ExecutionStatus.EXECUTED,
+                    LocalDateTime.now().toString(), task.isActive(), 100, Arrays.asList(40l, 50l)));
+        });
+        return responseList;
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{taskId}")

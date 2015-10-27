@@ -27,6 +27,8 @@ public class Task {
     @Field
     String name;
 
+    boolean active;
+
     String expressionType;
 
     String expression;
@@ -92,5 +94,13 @@ public class Task {
 
     public void setRunInfo(Map<String, Object> runInfo) {
         this.runInfo = runInfo;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }
