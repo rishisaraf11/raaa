@@ -4,6 +4,7 @@
 
 package com.vmware.scheduler.controller.Model;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.vmware.scheduler.domain.ExecutionStatus;
@@ -17,20 +18,14 @@ public class TaskRoot {
     ExecutionStatus lastExecutionStatus;
     String lastExecutionTime;
     boolean active;
-    long totalRun;
-    List<Long> runData;
+    long totalRun = 0;
+    List<Long> runData = Arrays.asList(0l,0l);
 
-    public TaskRoot(String id, String name, TaskType taskType,
-            ExecutionStatus lastExecutionStatus, String lastExecutionTime, boolean active,
-            long totalRun, List<Long> runData) {
+    public TaskRoot(String id, String name, TaskType taskType, boolean active) {
         this.id = id;
         this.name = name;
         this.taskType = taskType;
-        this.lastExecutionStatus = lastExecutionStatus;
-        this.lastExecutionTime = lastExecutionTime;
         this.active = active;
-        this.totalRun = totalRun;
-        this.runData = runData;
     }
 
     public String getName() {
@@ -53,16 +48,18 @@ public class TaskRoot {
         return lastExecutionStatus;
     }
 
-    public void setLastExecutionStatus(ExecutionStatus lastExecutionStatus) {
+    public TaskRoot withLastExecutionStatus(ExecutionStatus lastExecutionStatus) {
         this.lastExecutionStatus = lastExecutionStatus;
+        return this;
     }
 
     public String getLastExecutionTime() {
         return lastExecutionTime;
     }
 
-    public void setLastExecutionTime(String lastExecutionTime) {
+    public TaskRoot withLastExecutionTime(String lastExecutionTime) {
         this.lastExecutionTime = lastExecutionTime;
+        return this;
     }
 
     public boolean isActive() {
@@ -77,16 +74,18 @@ public class TaskRoot {
         return totalRun;
     }
 
-    public void setTotalRun(long totalRun) {
+    public TaskRoot withTotalRun(long totalRun) {
         this.totalRun = totalRun;
+        return this;
     }
 
     public List<Long> getRunData() {
         return runData;
     }
 
-    public void setRunData(List<Long> runData) {
+    public TaskRoot withRunData(List<Long> runData) {
         this.runData = runData;
+        return this;
     }
 
     public String getId() {

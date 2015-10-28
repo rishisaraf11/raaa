@@ -16,6 +16,9 @@ public interface TaskRepository extends MongoRepository<Task, String> {
     @Query(value = "'name' : ?0",fields="{ 'name' : 1}")
     public List<Task> getAllTasks(String temp);
 
+    @Query(value = "'active' : ?0", count = true)
+    public Long getActiveTaskCount(boolean isActive);
+
     public List<Task> findTasksByTaskType(TaskType type);
 
     public List<Task> findTasksByTaskType(String type);

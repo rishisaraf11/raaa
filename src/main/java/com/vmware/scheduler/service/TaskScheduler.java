@@ -26,6 +26,8 @@ public class TaskScheduler {
     QueryScheduler queryScheduler;
     @Autowired
     RestService restService;
+    @Autowired
+    CommandService commandService;
 
     public class WorkerThread implements Runnable{
         private Task task;
@@ -40,10 +42,10 @@ public class TaskScheduler {
 
             switch (task.getTaskType()) {
                 case REST:
-                    restService.execute(task);
+                    restService.execute(task.getRunInfo());
                     break;
                 case COMMAND:
-                    //command service to execute
+                    commandService.execute(task.getRunInfo());
                     break;
             }
             processCommand();
