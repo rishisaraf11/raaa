@@ -9,6 +9,8 @@ import com.vmware.scheduler.domain.ExecutionStatus;
 import com.vmware.scheduler.domain.Scheduler;
 import com.vmware.scheduler.domain.Task;
 import com.vmware.scheduler.domain.TaskType;
+import com.vmware.scheduler.domain.*;
+import com.vmware.scheduler.repo.CmdRepository;
 import com.vmware.scheduler.repo.SchedulerRepository;
 import com.vmware.scheduler.repo.TaskRepository;
 import com.vmware.scheduler.service.QueryScheduler;
@@ -38,6 +40,9 @@ public class TaskController {
 
     @Autowired
     QueryScheduler queryScheduler;
+
+    @Autowired
+    CmdRepository cmdRepository;
 
     @RequestMapping(method = RequestMethod.POST)
     public Task createTask(@RequestBody Map<String, Object> taskDetails) {
@@ -111,5 +116,13 @@ public class TaskController {
     @RequestMapping(method = RequestMethod.GET, value = "/{taskId}/schedule")
     public List<Scheduler> getAllScheduledEventOfTask(@PathVariable String taskId) {
         return schedulerRepository.findByTaskId(taskId);
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value="/cmd")
+    public Command cmdTask(@RequestBody Map<Object, Object> cmdDetails) {
+        Command cmd = new Command((Map)cmdDetails.get("payload"));//,cmdDetails.get("user").toString(),cmdDetails.get("pwd").toString(),cmdDetails.get("cmd").toString());
+        cmd.execute();
+        Command persisted = cmdRepository.save(cmd);
+        return persisted;
     }
 }
