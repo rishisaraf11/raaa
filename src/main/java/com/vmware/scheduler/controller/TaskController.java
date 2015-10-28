@@ -83,8 +83,16 @@ public class TaskController {
         List<TaskRoot> responseList = new ArrayList();
         taskList.forEach( task -> {
             List<Scheduler> schedulers = schedulerRepository.findByTaskId(task.getId(),new Sort(Sort.Direction.DESC,"date"));
-            responseList.add(new TaskRoot(task.getId(),task.getName(), task.getTaskType(),schedulers.get(0).getExecutionStatus(),
-                    schedulers.get(0).getTimeStamp(), task.isActive(), 100, Arrays.asList(40l, 50l)));
+            TaskRoot taskRoot = new TaskRoot(task.getId(), task.getName(), task.getTaskType(), task.isActive());
+            if (schedulers != null && !schedulers.isEmpty()) {
+                taskRoot.withLastExecutionStatus(schedulers.get(0).getExecutionStatus());
+                taskRoot.withLastExecutionTime(schedulers.get(0).getTimeStamp());
+                taskRoot.withTotalRun(schedulers.size());
+                long passCount = schedulers.stream().filter( s -> s.getExecutionStatus().equals(ExecutionStatus.EXECUTED)).count();
+                long failCount = schedulers.stream().filter( s -> s.getExecutionStatus().equals(ExecutionStatus.FAILED)).count();
+                taskRoot.withRunData(Arrays.asList(passCount, failCount));
+            }
+            responseList.add(taskRoot);
         });
         return responseList;
     }
