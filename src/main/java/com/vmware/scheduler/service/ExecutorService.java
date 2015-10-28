@@ -38,7 +38,7 @@ public class ExecutorService implements Runnable {
                 while(jobQueue.getQueue().isEmpty())Thread.sleep(10000);
                 msg = jobQueue.getQueue().take();
                 Task task = taskRepository.findOne(msg);
-                if (!task.isActive()) {
+                if (task.isActive()) {
                     TaskExecution execution = new TaskExecution();
                     execution.setStartedDate(new Date());
                     switch (task.getTaskType()) {
