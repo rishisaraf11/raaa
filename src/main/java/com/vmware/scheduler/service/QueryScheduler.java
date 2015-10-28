@@ -6,23 +6,24 @@ package com.vmware.scheduler.service;
 
 import com.vmware.scheduler.comparator.TaskCronComparator;
 import com.vmware.scheduler.domain.Scheduler;
+import com.vmware.scheduler.domain.TaskJob;
 import com.vmware.scheduler.repo.SchedulerRepository;
 import com.vmware.scheduler.repo.TaskRepository;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.PriorityQueue;
+import org.quartz.CronScheduleBuilder;
+import org.quartz.JobDetail;
+import org.quartz.Trigger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import static org.quartz.JobBuilder.newJob;
+import static org.quartz.TriggerBuilder.newTrigger;
 
 @Component
 public class QueryScheduler {
-
-    /*public class Pair {
-        public Task task;
-        public Scheduler scheduler;
-    }*/
 
     //need to change to priorityBlockingQueue
     PriorityQueue<Scheduler> taskQueue = new PriorityQueue<Scheduler>(new TaskCronComparator());
@@ -46,13 +47,6 @@ public class QueryScheduler {
             dateTime2 = LocalDateTime.of(dateTime.getYear(), dateTime.getMonth(), dateTime.getDayOfMonth(), dateTime.getHour(), dateTime.getMinute()+10);
         }
 
-      /*  Calendar calendar = Calendar.getInstance();
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        int minute = calendar.get(Calendar.MINUTE);
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH);
-        int date = calendar.get(Calendar.DATE);
-      */
         String time1 = dateTime.format(formatter);
         String time2 = dateTime2.format(formatter);
 
@@ -65,5 +59,23 @@ public class QueryScheduler {
         return taskQueue;
     }
 
+    public void scheduleCronTask(String cronExp, String taskId) {
+        JobDetail job = newJob(TaskJob.class).withIdentity(taskId).build();
+        job.getJobDataMap().put("taskId", taskId);
 
+        Trigger trigger = newTrigger().withIdentity(taskId)
+                //.startNow()
+                .withSchedule(CronScheduleBuilder.cronSchedule(cronExp)).build();
+
+        try {
+            org.quartz.Scheduler sched = com.vmware.scheduler.service.SchedulerFactory.getScheduler();
+            sched.start();
+            sched.scheduleJob(job, trigger);
+            Thread.sleep(2000);
+            //sched.shutdown(true);
+        }catch (Exception e){
+            System.out.println("Exception: Problem in scheduling job with cron expression!!!");
+            e.printStackTrace();
+        }
+    }
 }
