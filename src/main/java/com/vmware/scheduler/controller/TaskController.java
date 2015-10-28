@@ -6,6 +6,7 @@ package com.vmware.scheduler.controller;
 
 import com.vmware.scheduler.controller.Model.TaskFullDetail;
 import com.vmware.scheduler.controller.Model.TaskRoot;
+import com.vmware.scheduler.controller.Model.TaskStats;
 import com.vmware.scheduler.domain.Command;
 import com.vmware.scheduler.domain.ExecutionStatus;
 import com.vmware.scheduler.domain.Remail;
@@ -101,14 +102,17 @@ public class TaskController {
         List<Task> taskList = taskRepository.findAll(new Sort(Sort.Direction.ASC, "date"));
         List<TaskRoot> responseList = new ArrayList();
         taskList.forEach(task -> {
-            List<Scheduler> schedulers = schedulerRepository.findByTaskId(task.getId(), new Sort(Sort.Direction.DESC, "date"));
+            List<Scheduler> schedulers = schedulerRepository.findByTaskId(task.getId(),
+                    new Sort(Sort.Direction.DESC, "date"));
             TaskRoot taskRoot = new TaskRoot(task.getId(), task.getName(), task.getTaskType(), task.isActive());
             if (schedulers != null && !schedulers.isEmpty()) {
                 taskRoot.withLastExecutionStatus(schedulers.get(0).getExecutionStatus());
                 taskRoot.withLastExecutionTime(schedulers.get(0).getTimeStamp());
                 taskRoot.withTotalRun(schedulers.size());
-                long passCount = schedulers.stream().filter(s -> s.getExecutionStatus().equals(ExecutionStatus.EXECUTED)).count();
-                long failCount = schedulers.stream().filter(s -> s.getExecutionStatus().equals(ExecutionStatus.FAILED)).count();
+                long passCount = schedulers.stream().filter(
+                        s -> s.getExecutionStatus().equals(ExecutionStatus.EXECUTED)).count();
+                long failCount = schedulers.stream().filter(
+                        s -> s.getExecutionStatus().equals(ExecutionStatus.FAILED)).count();
                 taskRoot.withRunData(Arrays.asList(passCount, failCount));
             }
             responseList.add(taskRoot);
@@ -167,5 +171,19 @@ public class TaskController {
         cmd.execute();
         Command persisted = cmdRepository.save(cmd);
         return persisted;
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/stats")
+    public TaskStats getStats() {
+        List<Task> tasks = taskRepository.findAll();
+        List<TaskExecution> executions = taskExecutionRepository.findAll();
+        if (executions != null) {
+            long passCount = executions.stream().filter(execution -> execution.getExecutionStatus().equals(ExecutionStatus.EXECUTED)).count();
+            long failCount = executions.stream().filter(execution -> execution.getExecutionStatus().equals(ExecutionStatus.FAILED)).count();
+            return new TaskStats(tasks.size(), executions.size(), passCount, failCount);
+        } else {
+            return new TaskStats(tasks.size(), executions.size());
+        }
+
     }
 }
