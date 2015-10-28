@@ -5,13 +5,11 @@
 package com.vmware.scheduler.controller;
 
 import com.vmware.scheduler.controller.Model.TaskRoot;
-import com.vmware.scheduler.domain.Command;
 import com.vmware.scheduler.domain.ExecutionStatus;
-import com.vmware.scheduler.domain.Remail;
 import com.vmware.scheduler.domain.Scheduler;
 import com.vmware.scheduler.domain.Task;
 import com.vmware.scheduler.domain.TaskType;
-import com.vmware.scheduler.repo.CmdRepository;
+import com.vmware.scheduler.domain.*;
 import com.vmware.scheduler.repo.SchedulerRepository;
 import com.vmware.scheduler.repo.TaskRepository;
 import com.vmware.scheduler.service.QueryScheduler;
@@ -49,9 +47,6 @@ public class TaskController {
     @Autowired
     QueryScheduler queryScheduler;
 
-    @Autowired
-    CmdRepository cmdRepository;
-
     @RequestMapping(method = RequestMethod.POST)
     public Task createTask(@RequestBody Map<String, Object> taskDetails) {
         Task task = new Task(TaskType.valueOf(taskDetails.get("type").toString()), taskDetails.get("name").toString());
@@ -64,6 +59,11 @@ public class TaskController {
             runInfo.put("payload", taskDetails.get("payload"));
             runInfo.put("headers", taskDetails.get("headers"));
             runInfo.put("params", taskDetails.get("params"));
+        }else if (TaskType.COMMAND.equals(task.getTaskType())){
+            runInfo.put("hostIP",taskDetails.get("hostIP").toString());
+            runInfo.put("username",taskDetails.get("username").toString());
+            runInfo.put("password",taskDetails.get("password").toString());
+            runInfo.put("command",taskDetails.get("command").toString());
         }
 
         if ("cron".equals(taskDetails.get("expressionType").toString())) {
@@ -138,15 +138,6 @@ public class TaskController {
     public List<Scheduler> getAllScheduledEventOfTask(@PathVariable String taskId) {
         return schedulerRepository.findByTaskId(taskId);
     }
-
-    @RequestMapping(method = RequestMethod.POST, value="/cmd")
-    public Command cmdTask(@RequestBody Map<Object, Object> cmdDetails) {
-        Command cmd = new Command((Map)cmdDetails.get("payload"));//,cmdDetails.get("user").toString(),cmdDetails.get("pwd").toString(),cmdDetails.get("cmd").toString());
-        cmd.execute();
-        Command persisted = cmdRepository.save(cmd);
-        return persisted;
-    }
-
 
     void scheduleCronTask(String cronExp, String taskName) {
         // define the job and tie it to our HelloJob class
