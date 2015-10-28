@@ -1,6 +1,5 @@
 package com.vmware.scheduler.domain;
 
-import org.springframework.data.annotation.Id;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
@@ -13,8 +12,6 @@ import java.util.Properties;
 
 public class Remail {
 
-    @Id
-    public String id;
     Map<String,String> payload;
 
     public Remail() {}
@@ -22,15 +19,12 @@ public class Remail {
     {
         this.payload=(Map) payload;
     }
-    public String getId () { return id;  }
-    public void setId (String id) { this.id=id;  }
     public Map getPayload(){ return payload;}
     public void setPayload(Map payload){ this.payload=payload;}
 
 
-    public void execute()  {
+    public void execute(String to,String subject,String body)  {
 
-        String to = payload.get("to");
         final String username = "fritz@vcac-mail.eng.vmware.com";
         final String password = "password";
 
@@ -51,8 +45,8 @@ public class Remail {
             message.setFrom(new InternetAddress("fritz@vcac-mail.eng.vmware.com"));
             message.setRecipients(Message.RecipientType.TO,
                     InternetAddress.parse(to));
-            message.setSubject(payload.get("subject").toString());
-            message.setText(payload.get("body").toString());
+            message.setSubject(subject);
+            message.setText(body);
             Transport.send(message);
             System.out.println("Done");
         }

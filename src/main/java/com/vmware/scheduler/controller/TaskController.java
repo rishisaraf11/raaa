@@ -138,11 +138,6 @@ public class TaskController {
         return persisted;
     }
 
-    @RequestMapping(method=RequestMethod.POST,value="/{taskid}/status")
-    public void sendMail (@RequestBody Map<Object, Object> mailDetails) {
-        Remail remail = new Remail((Map)mailDetails.get("payload"));
-        remail.execute();
-    }
     @RequestMapping(method = RequestMethod.GET, value = "/{taskId}/schedule/{scheduleId}")
     public Scheduler getScheduledTask(@PathVariable String taskId, @PathVariable String scheduleId) {
         return schedulerRepository.findOne(scheduleId);

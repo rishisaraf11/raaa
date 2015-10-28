@@ -2,8 +2,6 @@ package com.vmware.scheduler.domain;
 
 import org.springframework.data.annotation.Id;
 
-import java.util.Map;
-
 /**
  * Created by ppushkar on 10/27/2015.
  */
@@ -12,12 +10,35 @@ public class Alert {
     @Id
     String id;
 
-    String taskId;
+    String schedulerId;
 
-    AlertRule alertRule;
+    String date;
 
-    Notification notification;
+    String executionStatus;
 
+    public String getSchedulerId() {
+        return schedulerId;
+    }
+
+    public void setSchedulerId(String schedulerId) {
+        this.schedulerId = schedulerId;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getExecutionStatus() {
+        return executionStatus;
+    }
+
+    public void setExecutionStatus(String executionStatus) {
+        this.executionStatus = executionStatus;
+    }
 
     public String getId() {
         return id;
@@ -25,29 +46,5 @@ public class Alert {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public String getTaskId() {
-        return taskId;
-    }
-
-    public void setTaskId(String taskId) {
-        this.taskId = taskId;
-    }
-
-    public AlertRule getAlertRule() {
-        return alertRule;
-    }
-
-    public void setAlertRule(AlertRule alertRule) {
-        this.alertRule = alertRule;
-    }
-
-    public Notification getNotification() {
-        return notification;
-    }
-
-    public void setNotification(Notification notification) {
-        this.notification = notification;
     }
 }
