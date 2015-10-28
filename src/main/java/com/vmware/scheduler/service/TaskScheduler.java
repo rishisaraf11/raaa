@@ -4,8 +4,11 @@
 
 package com.vmware.scheduler.service;
 
+import com.vmware.scheduler.domain.ExecutionStatus;
 import com.vmware.scheduler.domain.Scheduler;
 import com.vmware.scheduler.domain.Task;
+import com.vmware.scheduler.domain.TaskExecution;
+import com.vmware.scheduler.repo.TaskExecutionRepository;
 import com.vmware.scheduler.repo.TaskRepository;
 import java.util.Calendar;
 import java.util.Date;
@@ -28,6 +31,8 @@ public class TaskScheduler {
     RestService restService;
     @Autowired
     CommandTaskService commandService;
+    @Autowired
+    TaskExecutionRepository taskExecutionRepository;
 
     public class WorkerThread implements Runnable{
         private Task task;
@@ -39,26 +44,28 @@ public class TaskScheduler {
         @Override
         public void run() {
             System.out.println(task.getName()+" Start. Time = "+new Date());
-
+            TaskExecution execution = new TaskExecution();
+            execution.setStartedDate(new Date());
             switch (task.getTaskType()) {
-                case REST:
-                    restService.execute(task.getRunInfo());
+                case REST:{
+                    String output = restService.execute(task.getRunInfo());
+                    execution.setOutput(output);
+                    if("failed".equals(output))execution.setExecutionStatus(ExecutionStatus.FAILED);
+                    else execution.setExecutionStatus(ExecutionStatus.EXECUTED);
                     break;
-                case COMMAND:
-                    commandService.execute(task.getRunInfo());
+                }
+                case COMMAND: {
+                    String output = commandService.execute(task.getRunInfo());
+                    execution.setOutput(output);
+                    if("0".equals(output))execution.setExecutionStatus(ExecutionStatus.EXECUTED);
+                    else execution.setExecutionStatus(ExecutionStatus.FAILED);
                     break;
+                }
             }
-            processCommand();
+            execution.setCompleteDate(new Date());
+            execution.setTaskId(task.getId());
+            taskExecutionRepository.save(execution);
             System.out.println(task.getName()+" End. Time = "+new Date());
-        }
-
-        private void processCommand() {
-            try {
-                //restService.execute(task.getRunInfo());
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
     }
 

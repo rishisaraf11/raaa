@@ -9,11 +9,9 @@ import com.vmware.scheduler.controller.Model.TaskRoot;
 import com.vmware.scheduler.controller.Model.TaskStats;
 import com.vmware.scheduler.domain.Command;
 import com.vmware.scheduler.domain.ExecutionStatus;
-import com.vmware.scheduler.domain.Remail;
 import com.vmware.scheduler.domain.Scheduler;
 import com.vmware.scheduler.domain.Task;
 import com.vmware.scheduler.domain.TaskExecution;
-import com.vmware.scheduler.domain.TaskJob;
 import com.vmware.scheduler.domain.TaskType;
 import com.vmware.scheduler.repo.CmdRepository;
 import com.vmware.scheduler.repo.SchedulerRepository;
@@ -60,7 +58,11 @@ public class TaskController {
         //if(activatedTasks>10)throw new Exception("You are exceeding you 10 activated tasks limit.   ");
         Task task = new Task(TaskType.valueOf(taskDetails.get("type").toString()), taskDetails.get("name").toString());
         task.setExpressionType(taskDetails.get("expressionType").toString());
-        task.setActive((Boolean) taskDetails.get("active"));
+        if(taskDetails.get("active")==null){
+            task.setActive(true);
+        }else {
+            task.setActive((Boolean) taskDetails.get("active"));
+        }
         Map<String, Object> runInfo = task.getRunInfo();
         if (TaskType.REST.equals(task.getTaskType())) {
             runInfo.put("method",taskDetails.get("method").toString());

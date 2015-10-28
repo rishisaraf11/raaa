@@ -17,6 +17,7 @@ import org.quartz.CronScheduleBuilder;
 import org.quartz.JobDetail;
 import org.quartz.Trigger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import static org.quartz.JobBuilder.newJob;
@@ -32,7 +33,7 @@ public class QueryScheduler {
     @Autowired
     SchedulerRepository schedulerRepository;
 
-//    @Scheduled(fixedDelay = 50000)
+    @Scheduled(fixedDelay = 50000)
     public void doSchedule() throws InterruptedException {
        //fire query get latest record going to run in next 10 mins
         LocalDateTime  dateTime = LocalDateTime.now();
