@@ -75,7 +75,7 @@ public class TaskScheduler {
     public void doSchedule() throws InterruptedException {
         //fire query get latest record going to run in next 10 mins
 
-        final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
+        final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
 
         PriorityQueue<Scheduler> taskSet = queryScheduler.getTaskQueue();
         if (!taskSet.isEmpty()) {
