@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import org.quartz.CronExpression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -78,7 +79,10 @@ public class TaskController {
         }
 
         if ("cron".equals(taskDetails.get("expressionType").toString())) {
-            task.setExpression(taskDetails.get("expression").toString());
+            if(CronExpression.isValidExpression(taskDetails.get("expression").toString()))
+                task.setExpression(taskDetails.get("expression").toString());
+            else
+                throw new Exception("Not valid Cron Expression");
         } else {
             LocalDateTime dateTime = LocalDateTime.parse(taskDetails.get("date").toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
             task.setDate(dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
