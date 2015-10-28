@@ -5,11 +5,13 @@
 package com.vmware.scheduler.controller;
 
 import com.vmware.scheduler.controller.Model.TaskRoot;
+import com.vmware.scheduler.domain.Command;
 import com.vmware.scheduler.domain.ExecutionStatus;
+import com.vmware.scheduler.domain.Remail;
 import com.vmware.scheduler.domain.Scheduler;
 import com.vmware.scheduler.domain.Task;
+import com.vmware.scheduler.domain.TaskJob;
 import com.vmware.scheduler.domain.TaskType;
-import com.vmware.scheduler.domain.*;
 import com.vmware.scheduler.repo.CmdRepository;
 import com.vmware.scheduler.repo.SchedulerRepository;
 import com.vmware.scheduler.repo.TaskRepository;
@@ -22,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.JobDetail;
-import org.quartz.SchedulerFactory;
 import org.quartz.Trigger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -52,7 +53,9 @@ public class TaskController {
     CmdRepository cmdRepository;
 
     @RequestMapping(method = RequestMethod.POST)
-    public Task createTask(@RequestBody Map<String, Object> taskDetails) {
+    public Task createTask(@RequestBody Map<String, Object> taskDetails) throws Exception{
+        //Long activatedTasks = taskRepository.getActiveTaskCount(true);
+        //if(activatedTasks>10)throw new Exception("You are exceeding you 10 activated tasks limit.   ");
         Task task = new Task(TaskType.valueOf(taskDetails.get("type").toString()), taskDetails.get("name").toString());
         task.setExpressionType(taskDetails.get("expressionType").toString());
         task.setActive((Boolean) taskDetails.get("active"));
@@ -77,6 +80,9 @@ public class TaskController {
             task.setDate(dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
         }
         Task persisted = taskRepository.save(task);
+        if("cron".equals(task.getExpressionType())){
+            scheduleCronTask(task.getExpression(),task.getId());
+        }
         if(taskDetails.get("date")==null || taskDetails.get("date").toString().isEmpty() ){
             //return new Exception();
         }else {
@@ -143,41 +149,40 @@ public class TaskController {
         return schedulerRepository.findByTaskId(taskId);
     }
 
-    void scheduleCronTask(String cronExp, String taskName) {
-        // define the job and tie it to our HelloJob class
-        JobDetail job = newJob()
-                .withIdentity("myJob", "group1")
-                .build();
-
-        // Trigger the job to run now, and then every 40 seconds
-        Trigger trigger = newTrigger()
-                .withIdentity(taskName)
-                .startNow()
-                .withSchedule(
-                        CronScheduleBuilder.cronSchedule(cronExp))
-                .build();
-
-        // Tell quartz to schedule the job using our trigger
-        try {
-            SchedulerFactory schedFact = new org.quartz.impl.StdSchedulerFactory();
-
-            org.quartz.Scheduler sched = schedFact.getScheduler();
-            sched.start();
-            sched.scheduleJob(job, trigger);
-            Thread.sleep(2000);
-            //sched.shutdown();
-        }catch (Exception e){
-            System.out.println("Exception: Problem in scheduling job with cron expression!!!");
-            e.printStackTrace();
-        }
-
-    }
-
     @RequestMapping(method = RequestMethod.POST, value="/cmd")
     public Command cmdTask(@RequestBody Map<Object, Object> cmdDetails) {
         Command cmd = new Command((Map)cmdDetails.get("payload"));//,cmdDetails.get("user").toString(),cmdDetails.get("pwd").toString(),cmdDetails.get("cmd").toString());
         cmd.execute();
         Command persisted = cmdRepository.save(cmd);
         return persisted;
+    }
+
+
+    void scheduleCronTask(String cronExp, String taskId) {
+        // define the job and tie it to our HelloJob class
+        JobDetail job = newJob(TaskJob.class)
+                .withIdentity(taskId)
+                .build();
+        job.getJobDataMap().put("taskId", taskId);
+
+        // Trigger the job to run now, and then every 40 seconds
+        Trigger trigger = newTrigger()
+                .withIdentity(taskId)
+                //.startNow()
+                .withSchedule(
+                        CronScheduleBuilder.cronSchedule(cronExp))
+                .build();
+
+        // Tell quartz to schedule the job using our trigger
+        try {
+            org.quartz.Scheduler sched = com.vmware.scheduler.service.SchedulerFactory.getScheduler();
+            sched.start();
+            sched.scheduleJob(job, trigger);
+            Thread.sleep(2000);
+            //sched.shutdown(true);
+        }catch (Exception e){
+            System.out.println("Exception: Problem in scheduling job with cron expression!!!");
+            e.printStackTrace();
+        }
     }
 }
