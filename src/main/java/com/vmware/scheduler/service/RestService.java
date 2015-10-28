@@ -1,10 +1,17 @@
 package com.vmware.scheduler.service;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.vmware.scheduler.domain.Task;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.http.HttpResponse;
@@ -27,6 +34,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class RestService {
     private static ClientConnectionManager connectionManager;
+    private static String dcphost = "http://10.112.74.239:8000";
     enum RequestMethod {
         GET, POST;
     }
@@ -67,7 +75,8 @@ public class RestService {
         StringBuffer result = null;
         try {
             @Deprecated
-            HttpClient client = new DefaultHttpClient(getConnManager());
+//            HttpClient client = new DefaultHttpClient(getConnManager());
+            HttpClient client = new DefaultHttpClient();
             HttpPost post = new HttpPost(url);
 
             for(Map<String,String> header : headers){
@@ -132,14 +141,32 @@ public class RestService {
     }
 
     public String execute(Map<String, Object> payload) {
-        //Gson g = new Gson();
-        //RestPayload restPayload = g.fromJson(payload.toString(), RestPayload.class);
         System.out.println("Rest Service Executed.");
         switch (payload.get("method").toString()) {
             case "GET":
                 return handleGet();
             case "POST":
-                return handlePost(payload.get("url").toString(),(List<Map<String,String>>)payload.get("headers"),(List<Map<String,String>>)payload.get("params"),payload.get("payload").toString());
+                String dcpServiceUrl = dcphost+"/dcp/execute/";
+                Map<String,String> contentHeader = new HashMap<>();
+                contentHeader.put("key","Content-Type");
+                contentHeader.put("value","application/json");
+                List<Map<String,String>> headers = new ArrayList<Map<String,String>>(){{add(contentHeader);}};
+                Map<String, Object> dcpInfo = new HashMap<String, Object>(){{
+                    put("url",payload.get("url").toString());
+                    put("method",payload.get("method").toString());
+                    put("body",payload.get("payload").toString());
+                    put("username","fritz@coke.com");
+                    put("password","password");
+                }};
+
+                ObjectMapper mapper = new ObjectMapper();
+                String dcpPayload = null;
+                try {
+                    dcpPayload = mapper.writeValueAsString(dcpInfo);
+                    return handlePost(dcpServiceUrl,headers,new ArrayList<Map<String,String>>(),dcpPayload);
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
         }
         return "Error";
     }
