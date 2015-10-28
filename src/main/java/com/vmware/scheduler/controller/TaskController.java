@@ -190,6 +190,12 @@ public class TaskController {
         } else {
             return new TaskStats(tasks.size(), executions.size());
         }
+    }
 
+    @RequestMapping(method = RequestMethod.GET, value = "/{taskId}/{active}")
+    public void activateTask(@PathVariable String taskId, @PathVariable Boolean active) {
+        Task task = taskRepository.findOne(taskId);
+        task.setActive(active);
+        taskRepository.save(task);
     }
 }

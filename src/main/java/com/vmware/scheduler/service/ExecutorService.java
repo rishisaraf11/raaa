@@ -38,27 +38,34 @@ public class ExecutorService implements Runnable {
                 while(jobQueue.getQueue().isEmpty())Thread.sleep(10000);
                 msg = jobQueue.getQueue().take();
                 Task task = taskRepository.findOne(msg);
-                TaskExecution execution = new TaskExecution();
-                execution.setStartedDate(new Date());
-                switch (task.getTaskType()) {
-                    case REST:{
+                if (!task.isActive()) {
+                    TaskExecution execution = new TaskExecution();
+                    execution.setStartedDate(new Date());
+                    switch (task.getTaskType()) {
+                    case REST: {
                         String output = restService.execute(task.getRunInfo());
                         execution.setOutput(output);
-                        if("failed".equals(output))execution.setExecutionStatus(ExecutionStatus.FAILED);
-                        else execution.setExecutionStatus(ExecutionStatus.EXECUTED);
+                        if ("failed".equals(output))
+                            execution.setExecutionStatus(ExecutionStatus.FAILED);
+                        else
+                            execution.setExecutionStatus(ExecutionStatus.EXECUTED);
                         break;
                     }
                     case COMMAND: {
                         String output = commandService.execute(task.getRunInfo());
                         execution.setOutput(output);
-                        if("0".equals(output))execution.setExecutionStatus(ExecutionStatus.EXECUTED);
-                        else execution.setExecutionStatus(ExecutionStatus.FAILED);
+                        if ("0".equals(output))
+                            execution.setExecutionStatus(ExecutionStatus.EXECUTED);
+                        else
+                            execution.setExecutionStatus(ExecutionStatus.FAILED);
                         break;
                     }
+
+                    }
+                    execution.setCompleteDate(new Date());
+                    execution.setTaskId(task.getId());
+                    taskExecutionRepository.save(execution);
                 }
-                execution.setCompleteDate(new Date());
-                execution.setTaskId(task.getId());
-                taskExecutionRepository.save(execution);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
