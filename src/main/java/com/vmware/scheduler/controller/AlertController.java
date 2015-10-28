@@ -1,17 +1,14 @@
 package com.vmware.scheduler.controller;
 
-import com.vmware.scheduler.controller.Model.TaskRoot;
 import com.vmware.scheduler.domain.*;
-import com.vmware.scheduler.repo.AlertRepository;
+import com.vmware.scheduler.repo.AlertRuleRepository;
+import com.vmware.scheduler.service.AlertAndEmail;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +21,10 @@ import java.util.Map;
 public class AlertController {
 
     @Autowired
-    AlertRepository alertRepository;
+    AlertRuleRepository alertRuleRepository;
+
+    @Autowired
+    AlertAndEmail alertAndEmail;
 
     @RequestMapping(method = RequestMethod.POST)
     public AlertRule createAlert(@RequestBody Map<String, Object> alertDetails) throws Exception {
@@ -50,20 +50,24 @@ public class AlertController {
         } else {
             throw new Exception("Notification is Missing");
         }
-        alertRepository.save(alertRule);
-        return alertRule;
+        AlertRule persisted = alertRuleRepository.save(alertRule);
+
+        //Testing purpse
+        //TODO temporary code
+        alertAndEmail.checkAlert(new Scheduler(persisted.getTaskId(), "", "", ExecutionStatus.FAILED));
+        return persisted;
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/{taskid}/status")
     public void sendMail(@RequestBody Map<Object, Object> mailDetails) {
         Map<String, String> data = (Map) mailDetails.get("payload");
-        Remail remail = new Remail();
-        remail.execute(data.get("to").toString(), data.get("subject").toString(), data.get("body").toString());
+        EmailService remail = new EmailService();
+        remail.send(data.get("to").toString(), data.get("subject").toString(), data.get("body").toString());
     }
 
     @RequestMapping(method = RequestMethod.GET)
     public List<AlertRule> getAllTasks() {
-        List<AlertRule> taskList = alertRepository.findAll();
+        List<AlertRule> taskList = alertRuleRepository.findAll();
         return taskList;
 //        List<TaskRoot> responseList = new ArrayList();
 //        taskList.forEach(task -> {

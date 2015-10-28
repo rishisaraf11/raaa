@@ -3,27 +3,16 @@ package com.vmware.scheduler.domain;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.util.Map;
 import java.util.Properties;
 
 /**
  * Created by ppushkar on 10/27/2015.
  */
 
-public class Remail {
-
-    Map<String,String> payload;
-
-    public Remail() {}
-    public Remail(Map<String,String> payload)
-    {
-        this.payload=(Map) payload;
-    }
-    public Map getPayload(){ return payload;}
-    public void setPayload(Map payload){ this.payload=payload;}
+public class EmailService {
 
 
-    public void execute(String to,String subject,String body)  {
+    public void send(String to, String subject, String body)  {
 
         final String username = "fritz@vcac-mail.eng.vmware.com";
         final String password = "password";
@@ -33,8 +22,7 @@ public class Remail {
         props.put("mail.smtp.starttls.enable", "true");
         props.put("mail.smtp.host", "vcac-mail.eng.vmware.com");
         props.put("mail.smtp.port","25");
-
-        javax.mail.Session session = javax.mail.Session.getInstance(props,
+        Session session = Session.getInstance(props,
                 new javax.mail.Authenticator() {
                     protected PasswordAuthentication getPasswordAuthentication() {
                         return new PasswordAuthentication(username, password);
