@@ -27,7 +27,7 @@ public class TaskScheduler {
     @Autowired
     RestService restService;
     @Autowired
-    CommandService commandService;
+    CommandTaskService commandService;
 
     public class WorkerThread implements Runnable{
         private Task task;

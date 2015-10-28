@@ -15,7 +15,7 @@ import com.jcraft.jsch.Session;
  * @author rkasha
  */
 @Component
-public class CommandService {
+public class CommandTaskService {
         static final int PORT = 22;
     public String execute(Map<String, Object> payload) {
         String hostIP = payload.get("hostIP").toString();
