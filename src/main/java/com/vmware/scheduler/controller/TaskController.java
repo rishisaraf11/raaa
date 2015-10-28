@@ -192,7 +192,7 @@ public class TaskController {
         }
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/{taskId}/{active}")
+    @RequestMapping(method = RequestMethod.GET, value = "/activate/{taskId}/{active}")
     public void activateTask(@PathVariable String taskId, @PathVariable Boolean active) {
         Task task = taskRepository.findOne(taskId);
         task.setActive(active);
