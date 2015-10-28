@@ -108,12 +108,12 @@ public class TaskController {
         List<Task> taskList = taskRepository.findAll(new Sort(Sort.Direction.ASC, "date"));
         List<TaskRoot> responseList = new ArrayList();
         taskList.forEach(task -> {
-            List<Scheduler> schedulers = schedulerRepository.findByTaskId(task.getId(),
+            List<TaskExecution> schedulers = taskExecutionRepository.findByTaskId(task.getId(),
                     new Sort(Sort.Direction.DESC, "date"));
             TaskRoot taskRoot = new TaskRoot(task.getId(), task.getName(), task.getTaskType(), task.isActive());
             if (schedulers != null && !schedulers.isEmpty()) {
                 taskRoot.withLastExecutionStatus(schedulers.get(0).getExecutionStatus());
-                taskRoot.withLastExecutionTime(schedulers.get(0).getTimeStamp());
+                taskRoot.withLastExecutionTime(schedulers.get(0).getCompleteDate().toString());
                 taskRoot.withTotalRun(schedulers.size());
                 long passCount = schedulers.stream().filter(
                         s -> s.getExecutionStatus().equals(ExecutionStatus.EXECUTED)).count();
@@ -197,5 +197,8 @@ public class TaskController {
         Task task = taskRepository.findOne(taskId);
         task.setActive(active);
         taskRepository.save(task);
+        if("cron".equals(task.getExpressionType())){
+            queryScheduler.scheduleCronTask(task.getExpression(),task.getId());
+        }
     }
 }

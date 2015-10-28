@@ -16,8 +16,8 @@ public class JobQueue {
     public static BlockingQueue<String> queue = new ArrayBlockingQueue<>(10); //size of queue 10
 
     @Autowired
-    public JobQueue(TaskRepository repository, RestService restService, CommandTaskService command, TaskExecutionRepository executionRepository) {
-        new Thread(new ExecutorService(this, repository, restService, command, executionRepository)).start();    //to consume task from jobqueue, run forever
+    public JobQueue(TaskRepository repository, RestService restService, CommandTaskService command, TaskExecutionRepository executionRepository,  AlertAndEmail alertAndEmail) {
+        new Thread(new ExecutorService(this, repository, restService, command, executionRepository, alertAndEmail)).start();    //to consume task from jobqueue, run forever
     }
 
     public BlockingQueue<String> getQueue() {

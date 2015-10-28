@@ -21,13 +21,17 @@ public class ExecutorService implements Runnable {
     CommandTaskService commandService;
 
     TaskExecutionRepository taskExecutionRepository;
+    private AlertAndEmail alertAndEmail;
 
-    public ExecutorService(JobQueue jobQueue, TaskRepository taskRepository, RestService restService, CommandTaskService commandService, TaskExecutionRepository taskExecutionRepository) {
+    public ExecutorService(JobQueue jobQueue, TaskRepository taskRepository,
+            RestService restService, CommandTaskService commandService,
+            TaskExecutionRepository taskExecutionRepository, AlertAndEmail alertAndEmail) {
         this.jobQueue = jobQueue;
         this.taskRepository = taskRepository;
         this.restService = restService;
         this.commandService = commandService;
         this.taskExecutionRepository = taskExecutionRepository;
+        this.alertAndEmail = alertAndEmail;
     }
 
     @Override
@@ -64,7 +68,8 @@ public class ExecutorService implements Runnable {
                     }
                     execution.setCompleteDate(new Date());
                     execution.setTaskId(task.getId());
-                    taskExecutionRepository.save(execution);
+                    TaskExecution persisted = taskExecutionRepository.save(execution);
+                    alertAndEmail.checkAlert(persisted);
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();

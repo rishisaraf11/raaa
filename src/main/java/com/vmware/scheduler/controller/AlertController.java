@@ -1,15 +1,21 @@
 package com.vmware.scheduler.controller;
 
+import com.vmware.scheduler.controller.Model.TaskRoot;
 import com.vmware.scheduler.domain.*;
+import com.vmware.scheduler.repo.AlertRepository;
 import com.vmware.scheduler.repo.AlertRuleRepository;
 import com.vmware.scheduler.repo.TaskExecutionRepository;
 import com.vmware.scheduler.service.AlertAndEmail;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +35,8 @@ public class AlertController {
 
     @Autowired
     TaskExecutionRepository taskExecutionRepository;
+    @Autowired
+    AlertRepository alertRepository;
 
     @RequestMapping(method = RequestMethod.POST)
     public AlertRule createAlert(@RequestBody Map<String, Object> alertDetails) throws Exception {
@@ -59,7 +67,7 @@ public class AlertController {
         //Testing purpse
         //TODO temporary code
 
-        alertAndEmail.checkAlert(taskExecutionRepository.findOne(alertDetails.get("taskId").toString()));
+//        alertAndEmail.checkAlert(taskExecutionRepository.findOne(alertDetails.get("taskId").toString()));
         return persisted;
     }
 
@@ -71,15 +79,15 @@ public class AlertController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public List<AlertRule> getAllTasks() {
-        List<AlertRule> taskList = alertRuleRepository.findAll();
-        return taskList;
-//        List<TaskRoot> responseList = new ArrayList();
-//        taskList.forEach(task -> {
-//            List<Scheduler> schedulers = alertRepository.findByTaskId(task.getId(), new Sort(Sort.Direction.DESC, "date"));
-//            responseList.add(taskRoot);
-//        });
-//        return responseList;
+    public List<Alert> getAllAlerts() {
+        PageRequest request = new PageRequest(0, 5, new Sort(Sort.Direction.DESC, "date"));
+        Page<Alert> page = alertRepository.findAll(request);
+        if (page != null && page.getTotalElements() > 0) {
+            return page.getContent();
+        } else {
+            return new ArrayList();
+        }
+
     }
 }
 
