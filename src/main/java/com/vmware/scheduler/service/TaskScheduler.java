@@ -78,11 +78,13 @@ public class TaskScheduler {
         return actualTime < targetTime ? targetTime - actualTime : targetTime - actualTime + 24*60;
     }
 
+    final static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
+
     @Scheduled(fixedDelay = 60000)
     public void doSchedule() throws InterruptedException {
         //fire query get latest record going to run in next 10 mins
 
-        final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
+        //final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
 
         PriorityQueue<Scheduler> taskSet = queryScheduler.getTaskQueue();
         if (!taskSet.isEmpty()) {

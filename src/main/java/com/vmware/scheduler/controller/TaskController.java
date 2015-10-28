@@ -55,8 +55,8 @@ public class TaskController {
 
     @RequestMapping(method = RequestMethod.POST)
     public Task createTask(@RequestBody Map<String, Object> taskDetails) throws Exception{
-        //Long activatedTasks = taskRepository.getActiveTaskCount(true);
-        //if(activatedTasks>10)throw new Exception("You are exceeding you 10 activated tasks limit.   ");
+        Long activatedTasks = taskRepository.countByActive(true);
+        if(activatedTasks>10)throw new Exception("You are exceeding 10 activated tasks limit.");
         Task task = new Task(TaskType.valueOf(taskDetails.get("type").toString()), taskDetails.get("name").toString());
         task.setExpressionType(taskDetails.get("expressionType").toString());
         if(taskDetails.get("active")==null){
