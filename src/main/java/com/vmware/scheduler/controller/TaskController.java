@@ -4,16 +4,19 @@
 
 package com.vmware.scheduler.controller;
 
+import com.vmware.scheduler.controller.Model.TaskFullDetail;
 import com.vmware.scheduler.controller.Model.TaskRoot;
 import com.vmware.scheduler.domain.Command;
 import com.vmware.scheduler.domain.ExecutionStatus;
 import com.vmware.scheduler.domain.Remail;
 import com.vmware.scheduler.domain.Scheduler;
 import com.vmware.scheduler.domain.Task;
+import com.vmware.scheduler.domain.TaskExecution;
 import com.vmware.scheduler.domain.TaskJob;
 import com.vmware.scheduler.domain.TaskType;
 import com.vmware.scheduler.repo.CmdRepository;
 import com.vmware.scheduler.repo.SchedulerRepository;
+import com.vmware.scheduler.repo.TaskExecutionRepository;
 import com.vmware.scheduler.repo.TaskRepository;
 import com.vmware.scheduler.service.QueryScheduler;
 import java.time.LocalDateTime;
@@ -42,6 +45,10 @@ public class TaskController {
 
     @Autowired
     TaskRepository taskRepository;
+
+
+    @Autowired
+    TaskExecutionRepository taskExecutionRepository;
 
     @Autowired
     SchedulerRepository schedulerRepository;
@@ -116,8 +123,14 @@ public class TaskController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{taskId}")
-    public Task getTask(@PathVariable String taskId) {
-        return taskRepository.findOne(taskId);
+    public TaskFullDetail getTask(@PathVariable String taskId) {
+        Task task = taskRepository.findOne(taskId);
+        TaskFullDetail detail = new TaskFullDetail(task);
+        List<TaskExecution> executions = taskExecutionRepository.findByTaskId(taskId);
+        if (executions != null && !executions.isEmpty()) {
+            detail.setTaskExecutions(executions);
+        }
+        return detail;
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/{taskId}")
