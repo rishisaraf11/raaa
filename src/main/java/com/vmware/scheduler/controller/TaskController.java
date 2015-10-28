@@ -55,7 +55,7 @@ public class TaskController {
     public Task createTask(@RequestBody Map<String, Object> taskDetails) {
         Task task = new Task(TaskType.valueOf(taskDetails.get("type").toString()), taskDetails.get("name").toString());
         task.setExpressionType(taskDetails.get("expressionType").toString());
-        task.setActive(true);
+        task.setActive((Boolean) taskDetails.get("active"));
         Map<String, Object> runInfo = task.getRunInfo();
         if (TaskType.REST.equals(task.getTaskType())) {
             runInfo.put("method",taskDetails.get("method").toString());
