@@ -2,6 +2,7 @@ package com.vmware.scheduler.controller;
 
 import com.vmware.scheduler.domain.*;
 import com.vmware.scheduler.repo.AlertRuleRepository;
+import com.vmware.scheduler.repo.TaskExecutionRepository;
 import com.vmware.scheduler.service.AlertAndEmail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,6 +26,9 @@ public class AlertController {
 
     @Autowired
     AlertAndEmail alertAndEmail;
+
+    @Autowired
+    TaskExecutionRepository taskExecutionRepository;
 
     @RequestMapping(method = RequestMethod.POST)
     public AlertRule createAlert(@RequestBody Map<String, Object> alertDetails) throws Exception {
@@ -54,7 +58,8 @@ public class AlertController {
 
         //Testing purpse
         //TODO temporary code
-        alertAndEmail.checkAlert(new Scheduler(persisted.getTaskId(), "", "", ExecutionStatus.FAILED));
+
+        alertAndEmail.checkAlert(taskExecutionRepository.findOne(alertDetails.get("taskId").toString()));
         return persisted;
     }
 
