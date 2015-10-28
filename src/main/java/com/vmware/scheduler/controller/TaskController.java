@@ -114,6 +114,16 @@ public class TaskController {
         return taskRepository.findOne(taskId);
     }
 
+    @RequestMapping(method = RequestMethod.DELETE, value = "/{taskId}")
+    public void deleteTask(@PathVariable String taskId) {
+         taskRepository.delete(taskId);
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, value = "/all")
+    public void deleteAllTask() {
+        taskRepository.deleteAll();
+    }
+
     @RequestMapping(method = RequestMethod.POST, value = "/{taskId}/schedule")
     public Scheduler scheduleTask(@PathVariable String taskId, @RequestBody Map<String, String> scheduleDetails) {
         Scheduler scheduler = new Scheduler(taskId,scheduleDetails.get("timeZone"),scheduleDetails.get("timeStamp"),ExecutionStatus.SCHEDULED);
