@@ -5,11 +5,12 @@
 package com.vmware.scheduler.controller;
 
 import com.vmware.scheduler.controller.Model.TaskRoot;
+import com.vmware.scheduler.domain.Command;
 import com.vmware.scheduler.domain.ExecutionStatus;
+import com.vmware.scheduler.domain.Remail;
 import com.vmware.scheduler.domain.Scheduler;
 import com.vmware.scheduler.domain.Task;
 import com.vmware.scheduler.domain.TaskType;
-import com.vmware.scheduler.domain.*;
 import com.vmware.scheduler.repo.CmdRepository;
 import com.vmware.scheduler.repo.SchedulerRepository;
 import com.vmware.scheduler.repo.TaskRepository;
@@ -20,6 +21,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import org.quartz.CronScheduleBuilder;
+import org.quartz.JobDetail;
+import org.quartz.SchedulerFactory;
+import org.quartz.Trigger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,6 +32,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import static org.quartz.JobBuilder.newJob;
+import static org.quartz.TriggerBuilder.newTrigger;
 
 @RestController
 @RequestMapping("/api/task")
@@ -73,7 +81,7 @@ public class TaskController {
             schedulerRepository.save(scheduler);
         }
         //if task need to be executed in next 10 mins;
-//        queryScheduler.getTaskQueue().add(persisted);
+        //queryScheduler.getTaskQueue().add(persisted);
         return persisted;
     }
 
@@ -81,15 +89,15 @@ public class TaskController {
     public List<TaskRoot> getAllTasks() {
         List<Task> taskList = taskRepository.findAll(new Sort(Sort.Direction.ASC, "date"));
         List<TaskRoot> responseList = new ArrayList();
-        taskList.forEach( task -> {
-            List<Scheduler> schedulers = schedulerRepository.findByTaskId(task.getId(),new Sort(Sort.Direction.DESC,"date"));
+        taskList.forEach(task -> {
+            List<Scheduler> schedulers = schedulerRepository.findByTaskId(task.getId(), new Sort(Sort.Direction.DESC, "date"));
             TaskRoot taskRoot = new TaskRoot(task.getId(), task.getName(), task.getTaskType(), task.isActive());
             if (schedulers != null && !schedulers.isEmpty()) {
                 taskRoot.withLastExecutionStatus(schedulers.get(0).getExecutionStatus());
                 taskRoot.withLastExecutionTime(schedulers.get(0).getTimeStamp());
                 taskRoot.withTotalRun(schedulers.size());
-                long passCount = schedulers.stream().filter( s -> s.getExecutionStatus().equals(ExecutionStatus.EXECUTED)).count();
-                long failCount = schedulers.stream().filter( s -> s.getExecutionStatus().equals(ExecutionStatus.FAILED)).count();
+                long passCount = schedulers.stream().filter(s -> s.getExecutionStatus().equals(ExecutionStatus.EXECUTED)).count();
+                long failCount = schedulers.stream().filter(s -> s.getExecutionStatus().equals(ExecutionStatus.FAILED)).count();
                 taskRoot.withRunData(Arrays.asList(passCount, failCount));
             }
             responseList.add(taskRoot);
@@ -137,5 +145,36 @@ public class TaskController {
         cmd.execute();
         Command persisted = cmdRepository.save(cmd);
         return persisted;
+    }
+
+
+    void scheduleCronTask(String cronExp, String taskName) {
+        // define the job and tie it to our HelloJob class
+        JobDetail job = newJob()
+                .withIdentity("myJob", "group1")
+                .build();
+
+        // Trigger the job to run now, and then every 40 seconds
+        Trigger trigger = newTrigger()
+                .withIdentity(taskName)
+                .startNow()
+                .withSchedule(
+                        CronScheduleBuilder.cronSchedule(cronExp))
+                .build();
+
+        // Tell quartz to schedule the job using our trigger
+        try {
+            SchedulerFactory schedFact = new org.quartz.impl.StdSchedulerFactory();
+
+            org.quartz.Scheduler sched = schedFact.getScheduler();
+            sched.start();
+            sched.scheduleJob(job, trigger);
+            Thread.sleep(2000);
+            //sched.shutdown();
+        }catch (Exception e){
+            System.out.println("Exception: Problem in scheduling job with cron expression!!!");
+            e.printStackTrace();
+        }
+
     }
 }
