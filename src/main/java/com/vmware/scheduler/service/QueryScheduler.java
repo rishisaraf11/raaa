@@ -6,6 +6,7 @@ package com.vmware.scheduler.service;
 
 import com.vmware.scheduler.comparator.TaskCronComparator;
 import com.vmware.scheduler.domain.Scheduler;
+import com.vmware.scheduler.domain.Task;
 import com.vmware.scheduler.domain.TaskJob;
 import com.vmware.scheduler.repo.SchedulerRepository;
 import com.vmware.scheduler.repo.TaskRepository;
@@ -15,6 +16,8 @@ import java.util.List;
 import java.util.PriorityQueue;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.JobDetail;
+import org.quartz.JobKey;
+import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -23,15 +26,30 @@ import org.springframework.stereotype.Component;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
 
+import javax.annotation.PostConstruct;
+
 @Component
 public class QueryScheduler {
 
     //need to change to priorityBlockingQueue
     PriorityQueue<Scheduler> taskQueue = new PriorityQueue<Scheduler>(new TaskCronComparator());
-    @Autowired
     TaskRepository taskRepository;
-    @Autowired
     SchedulerRepository schedulerRepository;
+
+    @Autowired
+    public QueryScheduler(TaskRepository taskRepository,
+            SchedulerRepository schedulerRepository) {
+        this.taskRepository = taskRepository;
+        this.schedulerRepository = schedulerRepository;
+    }
+
+    @PostConstruct
+    public void scheduledCronJob() {
+        List<Task> tasks = taskRepository.findTasksByActiveAndExpressionType(true, "cron");
+        tasks.forEach( task -> {
+            this.scheduleCronTask(task.getExpression(), task.getId());
+        });
+    }
 
     @Scheduled(fixedDelay = 50000)
     public void doSchedule() throws InterruptedException {
@@ -61,7 +79,18 @@ public class QueryScheduler {
     }
 
     public void scheduleCronTask(String cronExp, String taskId) {
-        JobDetail job = newJob(TaskJob.class).withIdentity(taskId).build();
+        org.quartz.Scheduler sched = com.vmware.scheduler.service.SchedulerFactory.getScheduler();
+        JobDetail job = newJob(TaskJob.class).withIdentity(new JobKey(taskId)).build();
+
+        try {
+            JobDetail jobDetail = sched.getJobDetail(job.getKey());
+            if (jobDetail != null) {
+                return;
+            }
+        } catch (SchedulerException e) {
+            e.printStackTrace();
+        }
+
         job.getJobDataMap().put("taskId", taskId);
 
         Trigger trigger = newTrigger().withIdentity(taskId)
@@ -69,7 +98,6 @@ public class QueryScheduler {
                 .withSchedule(CronScheduleBuilder.cronSchedule(cronExp)).build();
 
         try {
-            org.quartz.Scheduler sched = com.vmware.scheduler.service.SchedulerFactory.getScheduler();
             sched.start();
             sched.scheduleJob(job, trigger);
             Thread.sleep(2000);

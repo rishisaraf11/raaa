@@ -22,4 +22,6 @@ public interface TaskRepository extends MongoRepository<Task, String> {
     public List<Task> findTasksByTaskType(TaskType type);
 
     public List<Task> findTasksByTaskType(String type);
+
+    public List<Task> findTasksByActiveAndExpressionType(boolean active, String expressionType);
 }
