@@ -105,8 +105,20 @@ public class RestService {
         return "failed";
     }
 
-    static String handleGet() {
-        String url = "http://www.google.com/search?q=developer";
+    public  static class ApplicationStatusResponse{
+        public int getStatusCode() {
+            return statusCode;
+        }
+
+        public void setStatusCode(int statusCode) {
+            this.statusCode = statusCode;
+        }
+
+        int statusCode;
+
+    }
+
+    static String handleGet(String url) {
 
         @Deprecated
         HttpClient client = new DefaultHttpClient();
@@ -114,7 +126,6 @@ public class RestService {
 
         // add request header
         request.addHeader("Accept", "application/json");
-        request.addHeader("Content-Type", "application/json");
 
         StringBuffer result = null;
         HttpResponse response = null;
@@ -122,29 +133,39 @@ public class RestService {
             response = client.execute(request);
 
 
-        /*System.out.println("\nSending 'GET' request to URL : " + url);
         System.out.println("Response Code : " +
-                response.getStatusLine().getStatusCode());*/
+                response.getStatusLine().getStatusCode());
 
             BufferedReader rd = new BufferedReader(
                     new InputStreamReader(response.getEntity().getContent()));
 
+            Gson gson = new Gson();
+            ApplicationStatusResponse applicationResponse = gson.fromJson(rd, ApplicationStatusResponse.class);
+
+            if(applicationResponse != null){
+                if(applicationResponse.getStatusCode() == -1){
+                    return "failed";
+                }
+            }
             result = new StringBuffer();
             String line = "";
             while ((line = rd.readLine()) != null) {
                 result.append(line);
             }
+            return result.toString();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return result.toString();
+        return "failed";
     }
 
     public String execute(Map<String, Object> payload) {
         System.out.println("Rest Service Executed.");
         switch (payload.get("method").toString()) {
             case "GET":
-                return handleGet();
+//                String statusUrl = dcphost+"/dcp/status";
+                String statusUrl = "http://localhost:8000"+"/dcp/status";
+                return handleGet(statusUrl);
             case "POST":
                 String dcpServiceUrl = dcphost+"/dcp/execute/";
                 Map<String,String> contentHeader = new HashMap<>();
