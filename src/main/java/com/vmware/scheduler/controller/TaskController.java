@@ -104,7 +104,17 @@ public class TaskController {
             //return new Exception();
         }else {
             LocalDateTime dateTime = LocalDateTime.parse(taskDetails.get("date").toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
-            Scheduler scheduler = new Scheduler(persisted.getId(),"India", dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),ExecutionStatus.NOT_SCHEDULED);
+            int h = dateTime.getHour() + 5;
+            int m = dateTime.getMinute() + 30;
+            LocalDateTime dateTime2;
+            if(m>=60) {
+                m = m % 60;
+                h = h+1;
+                dateTime2 = LocalDateTime.of(dateTime.getYear(), dateTime.getMonth(), dateTime.getDayOfMonth(), h, m);
+            }else {
+                dateTime2 = LocalDateTime.of(dateTime.getYear(), dateTime.getMonth(), dateTime.getDayOfMonth(), h, m);
+            }
+            Scheduler scheduler = new Scheduler(persisted.getId(),"India", dateTime2.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),ExecutionStatus.NOT_SCHEDULED);
             schedulerRepository.save(scheduler);
         }
         //if task need to be executed in next 10 mins;
