@@ -49,7 +49,7 @@ public class ExecutorService implements Runnable {
                     case REST: {
                         String output = restService.execute(task.getRunInfo());
                         execution.setOutput(output);
-                        if ("failed".equals(output))
+                        if ("failed".equals(output) || Integer.parseInt(output)/100!=2)
                             execution.setExecutionStatus(ExecutionStatus.FAILED);
                         else
                             execution.setExecutionStatus(ExecutionStatus.EXECUTED);

@@ -104,8 +104,16 @@ public class TaskController {
             //return new Exception();
         }else {
             LocalDateTime dateTime = LocalDateTime.parse(taskDetails.get("date").toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
-            int h = dateTime.getHour() + 5;
-            int m = dateTime.getMinute() + 30;
+            int h = dateTime.getHour();
+            int m = dateTime.getMinute();
+            if("cron".equals(task.getExpressionType())){
+
+            }else{
+                h = dateTime.getHour() + 5;
+                m = dateTime.getMinute() + 30;
+            }
+            //
+
             LocalDateTime dateTime2;
             if(m>=60) {
                 m = m % 60;
