@@ -43,7 +43,7 @@ public class Helper {
             long diffHours = diff / (60 * 60 * 1000) % 24;
             long diffDays = diff / (24 * 60 * 60 * 1000);
 
-            String out = "next Schedule after ";
+            String out = "";
             if(diffDays!=0){
                 out = out + diffDays + " days ";
             }

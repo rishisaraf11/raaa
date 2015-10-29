@@ -19,6 +19,9 @@ import com.vmware.scheduler.repo.SchedulerRepository;
 import com.vmware.scheduler.repo.TaskExecutionRepository;
 import com.vmware.scheduler.repo.TaskRepository;
 import com.vmware.scheduler.service.QueryScheduler;
+
+import java.text.ParseException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -122,7 +125,7 @@ public class TaskController {
                         s -> s.getExecutionStatus().equals(ExecutionStatus.FAILED)).count();
                 taskRoot.withRunData(Arrays.asList(passCount, failCount));
 
-                if("cron".equals(task.getExpressionType())){
+                if("cron".equals(task.getExpressionType()) && task.isActive()){
                     taskRoot.setNextRun(Helper.getNextRun(task.getExpression()));
                 }
             }
