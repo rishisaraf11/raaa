@@ -15,14 +15,13 @@ import com.vmware.scheduler.domain.Scheduler;
 import com.vmware.scheduler.domain.Task;
 import com.vmware.scheduler.domain.TaskExecution;
 import com.vmware.scheduler.domain.TaskType;
+import com.vmware.scheduler.repo.AlertRepository;
+import com.vmware.scheduler.repo.AlertRuleRepository;
 import com.vmware.scheduler.repo.CmdRepository;
 import com.vmware.scheduler.repo.SchedulerRepository;
 import com.vmware.scheduler.repo.TaskExecutionRepository;
 import com.vmware.scheduler.repo.TaskRepository;
 import com.vmware.scheduler.service.QueryScheduler;
-
-import java.text.ParseException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -45,6 +44,11 @@ public class TaskController {
     @Autowired
     TaskRepository taskRepository;
 
+    @Autowired
+    AlertRepository alertRepository;
+
+    @Autowired
+    AlertRuleRepository alertRuleRepository;
 
     @Autowired
     TaskExecutionRepository taskExecutionRepository;
@@ -148,11 +152,15 @@ public class TaskController {
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/{taskId}")
     public void deleteTask(@PathVariable String taskId) {
-         taskRepository.delete(taskId);
+        taskExecutionRepository.deleteByTaskId(taskId);
+        taskRepository.delete(taskId);
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/all")
     public void deleteAllTask() {
+        alertRepository.deleteAll();
+        alertRuleRepository.deleteAll();
+        taskExecutionRepository.deleteAll();
         taskRepository.deleteAll();
     }
 
