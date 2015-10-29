@@ -4,6 +4,7 @@
 
 package com.vmware.scheduler.controller;
 
+import com.vmware.scheduler.comman.Helper;
 import com.vmware.scheduler.controller.Model.TaskFullDetail;
 import com.vmware.scheduler.controller.Model.TaskRoot;
 import com.vmware.scheduler.controller.Model.TaskStats;
@@ -120,6 +121,10 @@ public class TaskController {
                 long failCount = schedulers.stream().filter(
                         s -> s.getExecutionStatus().equals(ExecutionStatus.FAILED)).count();
                 taskRoot.withRunData(Arrays.asList(passCount, failCount));
+
+                if("cron".equals(task.getExpressionType())){
+                    taskRoot.setNextRun(Helper.getNextRun(task.getExpression()));
+                }
             }
             responseList.add(taskRoot);
         });

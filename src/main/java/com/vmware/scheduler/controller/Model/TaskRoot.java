@@ -19,6 +19,16 @@ public class TaskRoot {
     String lastExecutionTime;
     boolean active;
     long totalRun = 0;
+
+    public String getNextRun() {
+        return nextRun;
+    }
+
+    public void setNextRun(String nextRun) {
+        this.nextRun = nextRun;
+    }
+
+    String nextRun;
     List<Long> runData = Arrays.asList(0l,0l);
 
     public TaskRoot(String id, String name, TaskType taskType, boolean active) {
