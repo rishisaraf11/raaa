@@ -163,8 +163,8 @@ public class RestService {
         System.out.println("Rest Service Executed.");
         switch (payload.get("method").toString()) {
             case "GET":
-//                String statusUrl = dcphost+"/dcp/status";
-                String statusUrl = "http://localhost:8000"+"/dcp/status";
+                String statusUrl = dcphost+"/dcp/status";
+//                String statusUrl = "http://localhost:8000"+"/dcp/status";
                 return handleGet(statusUrl);
             case "POST":
                 String dcpServiceUrl = dcphost+"/dcp/execute/";
