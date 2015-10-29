@@ -5,6 +5,7 @@
 package com.vmware.scheduler.controller;
 
 import com.vmware.scheduler.comman.Helper;
+import com.vmware.scheduler.controller.Model.Event;
 import com.vmware.scheduler.controller.Model.TaskFullDetail;
 import com.vmware.scheduler.controller.Model.TaskRoot;
 import com.vmware.scheduler.controller.Model.TaskStats;
@@ -208,5 +209,23 @@ public class TaskController {
         if("cron".equals(task.getExpressionType())){
             queryScheduler.scheduleCronTask(task.getExpression(),task.getId());
         }
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/calendarList/{month}")
+    public List<Event> getCalenderEvents(@PathVariable String month) {
+        List<Scheduler> schedulers = schedulerRepository.findAll();
+        List<Event> events = new ArrayList<>();
+        schedulers.forEach(sch -> {
+            LocalDateTime d = LocalDateTime.parse(sch.getTimeStamp(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+            Event e = new Event();
+            Task t = taskRepository.findOne(sch.getTaskId());
+            if(month.equals(d.getMonth())){
+                e.setName(t.getName());
+                d.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                e.setDate(d.toString());
+                events.add(e);
+            }
+        });
+        return events;
     }
 }
