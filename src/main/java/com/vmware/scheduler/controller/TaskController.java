@@ -232,6 +232,7 @@ public class TaskController {
         Task task = taskRepository.findOne(taskId);
         task.setActive(active);
         taskRepository.save(task);
+        
         if("cron".equals(task.getExpressionType())){
             queryScheduler.scheduleCronTask(task.getExpression(),task.getId());
         }
